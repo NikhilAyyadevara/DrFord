@@ -5,22 +5,23 @@
 
 soldier::soldier(int a,int b)
 {
-	x=a;
-	y=b;
+	x_coordinate=a;
+	y_coordinate=b;
 }
 
 int soldier::getX()
 {
-	return x;
+	return x_coordinate;
 }
 
 int soldier::getY()
 {
-	return y;
+	return y_coordinate;
 }
 
 void soldier::move(int a, int b)
 {
-	x=a;
-	y=b;
+	x_coordinate=a;
+	y_coordinate=b;
 }
+

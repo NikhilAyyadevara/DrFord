@@ -20,7 +20,8 @@ class game_state
 		vector<pair<soldier, int> > enemy_cannons;
 		vector<pair<int, int> > townhalls;
 		vector<pair<int, int> > enemy_townhalls;
-		double time; 
+
+	public:
 		//functions
 		//game_state(int, int, int, double);
 		vector<int> find_Cannon(int, int, bool);
@@ -28,4 +29,8 @@ class game_state
 		int find_soldier(int, int, bool);
 		int find_townhall(int, int, bool);
 		void change_state(int, int, int, int, bool, bool);
-}
+		game_state(int, int, int);
+		void remove_cannons (int, int, bool);
+		void add_cannons(int, int, bool);
+		game_state(const game_state &g);
+};

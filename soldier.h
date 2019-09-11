@@ -1,5 +1,4 @@
-#include <iostream>
-#include<vector>
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -13,4 +12,5 @@ class soldier
 		int getX();
 		int getY();
 		void move(int, int);
+		soldier(int, int);
 };

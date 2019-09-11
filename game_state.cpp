@@ -1,12 +1,30 @@
 #include <bits/stdc++.h>
 #include "game_state.h"
+// #include "soldier.h"
 
-game_state::game_state(int a, int x, int y, double t)
+game_state::game_state(const game_state &g)
+{
+	id=g.id;
+	X=g.X;
+	Y=g.Y;
+	soldiers=g.soldiers;
+	enemy_soldiers=g.enemy_soldiers;
+	///Cannon orientation - 2nd parameter of pair
+	//vertical -> 0
+	//positive diagonal -> 1
+	//horizontal -> 2
+	//negative diagonal -> 3
+	cannons=g.cannons;
+	enemy_cannons=g.enemy_cannons;
+	townhalls=g.townhalls;
+	enemy_townhalls=g.townhalls;
+}
+
+game_state::game_state(int a, int x, int y)
 {
 	id=a;
 	X=x;
 	Y=y;
-	time = t;
 	if(a==0)
 	{
 		for(int i=0;i<(x/2);++i)
@@ -141,13 +159,13 @@ vector< pair<soldier, int> > game_state::find_new_Cannon(int x, int y, bool enem
 		int s_temp = find_soldier(x, y-2, enemy);
 		if(s_temp != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_1]; else s = enemy_soldiers[sold_1];
 			res.push_back(make_pair(s,0));
 		}
 		if(sold_5 != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_index]; else s = enemy_soldiers[sold_index];
 			res.push_back(make_pair(s, 0));
 		}
@@ -157,13 +175,13 @@ vector< pair<soldier, int> > game_state::find_new_Cannon(int x, int y, bool enem
 		int s_temp = find_soldier(x+2, y-2, enemy);
 		if(s_temp != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_2]; else s = enemy_soldiers[sold_2];
 			res.push_back(make_pair(s,3));
 		}
 		if(sold_6 != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_index]; else s = enemy_soldiers[sold_index];
 			res.push_back(make_pair(s, 3));
 		}
@@ -173,13 +191,13 @@ vector< pair<soldier, int> > game_state::find_new_Cannon(int x, int y, bool enem
 		int s_temp = find_soldier(x+2, y, enemy);
 		if(s_temp != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_3]; else s = enemy_soldiers[sold_3];
 			res.push_back(make_pair(s,2));
 		}
 		if(sold_7 != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_index]; else s = enemy_soldiers[sold_index];
 			res.push_back(make_pair(s, 2));
 		}
@@ -189,13 +207,13 @@ vector< pair<soldier, int> > game_state::find_new_Cannon(int x, int y, bool enem
 		int s_temp = find_soldier(x+2, y+2, enemy);
 		if(s_temp != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_4]; else s = enemy_soldiers[sold_4];
 			res.push_back(make_pair(s,1));
 		}
 		if(sold_8 != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_index]; else s = enemy_soldiers[sold_index];
 			res.push_back(make_pair(s, 1));
 		}
@@ -205,7 +223,7 @@ vector< pair<soldier, int> > game_state::find_new_Cannon(int x, int y, bool enem
 		int s_temp = find_soldier(x, y+2, enemy);
 		if(s_temp != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_5]; else s = enemy_soldiers[sold_5];
 			res.push_back(make_pair(s,0));
 		}
@@ -215,7 +233,7 @@ vector< pair<soldier, int> > game_state::find_new_Cannon(int x, int y, bool enem
 		int s_temp = find_soldier(x-2, y+2, enemy);
 		if(s_temp != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_6]; else s = enemy_soldiers[sold_6];
 			res.push_back(make_pair(s,3));
 		}
@@ -225,7 +243,7 @@ vector< pair<soldier, int> > game_state::find_new_Cannon(int x, int y, bool enem
 		int s_temp = find_soldier(x-2, y, enemy);
 		if(s_temp != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_7]; else s = enemy_soldiers[sold_7];
 			res.push_back(make_pair(s,2));
 		}
@@ -235,7 +253,7 @@ vector< pair<soldier, int> > game_state::find_new_Cannon(int x, int y, bool enem
 		int s_temp = find_soldier(x-2, y-2, enemy);
 		if(s_temp != -1)
 		{
-			soldier s;
+			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_8]; else s = enemy_soldiers[sold_8];
 			res.push_back(make_pair(s,1));
 		}
@@ -291,7 +309,7 @@ int game_state::find_townhall(int x, int y, bool enemy)
 	return -1;
 }
 
-void remove_cannons (int x, int y, bool enemy)
+void game_state::remove_cannons (int x, int y, bool enemy)
 {
 	vector<int> cannon_indexes = find_Cannon(x, y, enemy);
 	if(!enemy)
@@ -301,7 +319,7 @@ void remove_cannons (int x, int y, bool enemy)
 			int cannon_index = cannon_indexes.at(i);
 			if(cannon_index != -1)
 			{
-				cannons.remove(cannon_index);
+				cannons.erase( cannons.begin() +cannon_index);
 			}
 		}
 	}
@@ -312,26 +330,26 @@ void remove_cannons (int x, int y, bool enemy)
 			int cannon_index = cannon_indexes.at(i);
 			if(cannon_index != -1)
 			{
-				enemy_cannons.remove(cannon_index);
+				enemy_cannons.erase( enemy_cannons.begin() +cannon_index);
 			}
 		}
 	}
 	return;
 }
 
-void add_cannons (int x, int y, bool enemy)
+void game_state::add_cannons (int x, int y, bool enemy)
 {
 	vector<pair<soldier, int>> new_cannons = find_new_Cannon( x, y, enemy);
 	if(!enemy)
 	{
-		for(int i=0; i<new_cannons.sie(); i++)
+		for(int i=0; i<new_cannons.size(); i++)
 		{
 			cannons.push_back(new_cannons.at(i));
 		}
 	}
 	else
 	{
-		for(int i=0; i<new_cannons.sie(); i++)
+		for(int i=0; i<new_cannons.size(); i++)
 		{
 			enemy_cannons.push_back(new_cannons.at(i));
 		}
@@ -358,7 +376,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 				int killed_soldier = find_soldier(x2, y2, true);
 				if(killed_soldier != -1)
 				{
-					enemy_soldiers.remove(killed_soldier);
+					enemy_soldiers.erase( enemy_soldiers.begin() +killed_soldier);
 					//update enemy_cannons
 					remove_cannons(x2, y2, true);
 				}
@@ -366,7 +384,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 				int killed_townhall = find_townhall(x2, y2, true);
 				if(killed_townhall != -1)
 				{
-					enemy_townhalls.remove(killed_townhall);
+					enemy_townhalls.erase( enemy_townhalls.begin() +killed_townhall);
 				}
 			}
 		}
@@ -386,7 +404,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 				int killed_soldier = find_soldier(x2, y2, false);
 				if(killed_soldier != -1)
 				{
-					soldiers.remove(killed_soldier);
+					soldiers.erase( soldiers.begin() +killed_soldier);
 					//update cannons
 					remove_cannons(x2, y2, false);
 				}
@@ -394,7 +412,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 				int killed_townhall = find_townhall(x2, y2,	false);
 				if(killed_townhall != -1)
 				{
-					townhalls.remove(killed_townhall);
+					townhalls.erase( townhalls.begin() +killed_townhall);
 				}
 			}
 		}
@@ -408,7 +426,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 			int killed_soldier = find_soldier(x2, y2, true);
 			if(killed_soldier != -1)
 			{
-				enemy_soldiers.remove(killed_soldier);
+				enemy_soldiers.erase( enemy_soldiers.begin() +killed_soldier);
 				//update enemy_cannons
 				remove_cannons(x2, y2, true);
 			}
@@ -416,7 +434,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 			int killed_townhall = find_townhall(x2, y2, true);
 			if(killed_townhall != -1)
 			{
-				enemy_townhalls.remove(killed_townhall);
+				enemy_townhalls.erase( enemy_townhalls.begin() +killed_townhall);
 			}
 		}
 		else
@@ -426,7 +444,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 			int killed_soldier = find_soldier(x2, y2, false);
 			if(killed_soldier != -1)
 			{
-				soldiers.remove(killed_soldier);
+				soldiers.erase( soldiers.begin() +killed_soldier);
 				//update cannons
 				remove_cannons(x2, y2, false);
 			}
@@ -434,8 +452,13 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 			int killed_townhall = find_townhall(x2, y2,	false);
 			if(killed_townhall != -1)
 			{
-				townhalls.remove(killed_townhall);
+				townhalls.erase( townhalls.begin() +killed_townhall);
 			}
 		}
 	}
+}
+
+int main()
+{
+	return 0;
 }
