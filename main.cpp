@@ -54,7 +54,7 @@ int main()
 	while(true)
 	{
 		//our move
-		vector<Move> moves = random_player->possible_moves(false);
+		vector<Move> moves = random_player->current_state->possible_moves(false);
 		//cerr<<moves.size()<<' '<<"hi"<<endl;
 		int ran = rand()%moves.size();
 		char temp;

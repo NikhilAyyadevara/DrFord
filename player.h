@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
-#include "game_state.h"
-#include "Move.h"
+#include "node.h"
 
 using namespace std;
 
@@ -12,8 +11,5 @@ class player
 
 	public:
 		player(int, int, int, double);
-		double evaluation_function();
-		vector<game_state> possible_states(bool);
-		vector<Move> possible_moves(bool);
-
+		node* tree_build(int, bool, game_state*);
 };

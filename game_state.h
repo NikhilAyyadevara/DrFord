@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 #include "soldier.h"
+#include "Move.h"
 
 using namespace std;
 
@@ -32,5 +33,8 @@ class game_state
 		game_state(int, int, int);
 		void remove_cannons (int, int, bool);
 		void add_cannons(int, int, bool);
-		game_state(const game_state &g);
+		game_state(game_state* g);
+		double evaluation_function();
+		vector<pair<int,game_state*> > possible_states(bool);
+		vector<Move> possible_moves(bool);
 };
