@@ -1,7 +1,5 @@
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
 #include "soldier.h"
-
-
 
 soldier::soldier(int a,int b)
 {
