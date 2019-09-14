@@ -17,6 +17,7 @@ game_state::game_state(game_state* g)
 	enemy_cannons=g->enemy_cannons;
 	townhalls=g->townhalls;
 	enemy_townhalls=g->townhalls;
+
 }
 
 game_state::game_state(int a, int x, int y)
@@ -201,7 +202,6 @@ vector< pair<soldier, int> > game_state::find_new_Cannon(int x, int y, bool enem
 	}
 	if(sold_4 != -1)
 	{
-		cerr<<"aajd"<<endl;
 		int s_temp = find_soldier(x+2, y+2, enemy);
 		if(s_temp != -1)
 		{
@@ -211,7 +211,6 @@ vector< pair<soldier, int> > game_state::find_new_Cannon(int x, int y, bool enem
 		}
 		if(sold_8 != -1)
 		{
-			cerr<<"yes"<<endl;
 			soldier s(-1,-1);
 			if(!enemy) s = soldiers[sold_index]; else s = enemy_soldiers[sold_index];
 			res.push_back(make_pair(s, 1));
@@ -362,8 +361,6 @@ void game_state::add_cannons (int x, int y, bool enemy)
 
 void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool enemy)
 {
-
-	//cerr<<"please work"<<endl;
 	if(!bomb)
 	{
 		if(!enemy)
@@ -464,14 +461,20 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 	}
 }
 
+int townhall_scores[3][3] = {{0,2,0},{8,5,3},{10,7,5}};
 double game_state::evaluation_function()
 {
-	return 0;
+	double res;
+	double soldiers_wt = 0.01*(soldiers.size() - enemy_soldiers.size());
+	double cannon_wt = 0.03*(cannons.size()-enemy_cannons.size());
+	double townhalls_wt = townhall_scores[townhalls.size()-2][enemy_townhalls.size()-2];
+	res = soldiers_wt + townhalls_wt + cannon_wt; 
+	return res;
 }
 
 vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 {
-	vector<game_state*> moves;
+	vector<pair<int, game_state*> > moves;
 	int x_dim = this->X;
 	int y_dim = this->Y;
 	if(!enemy)

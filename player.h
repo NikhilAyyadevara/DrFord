@@ -12,4 +12,8 @@ class player
 	public:
 		player(int, int, int, double);
 		node* tree_build(int, bool, game_state*);
+		double min_val(node*, double, double, int);
+		double max_val(node*, double, double, int);
+		int minimax_decision(node*, double, double, int);
+		int ids_pruning(int, node*);
 };

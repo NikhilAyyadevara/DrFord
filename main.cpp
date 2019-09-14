@@ -9,8 +9,7 @@ void printcn(vector<pair<soldier, int> > cannons)
 	{
 		cerr << "orient: " << cannons[i].second << " " << "sold_x: " << cannons[i].first.getX() << " " << "sold_y: " << cannons[i].first.getY() << endl;
 	}
-
-	 cerr << "----------------------------------------------" << endl;
+	cerr << "----------------------------------------------" << endl;
 }
 
 int main()
@@ -26,7 +25,6 @@ int main()
 	srand(time(0));
 
 	id--;
-	//cerr<<id<<"==1"<<endl;
 
 	player* random_player = new player(id,x_dim,y_dim,time_left);
 
@@ -46,17 +44,18 @@ int main()
 			cin>>y2;
 			bomb = (b=='B');
 		}
-			//cerr<<"surprise1!" << endl;
 		random_player->current_state->change_state(x1,y1,x2,y2,bomb,true);
-			//cerr<<"surprise2!" << endl;
 	}
 
 	while(true)
 	{
 		//our move
+		double remaining_time = random_player->remaining_time;
+		//if(remaining_time<15)
+		node* tree = random_player->tree_build(5, false, random_player->current_state);
 		vector<Move> moves = random_player->current_state->possible_moves(false);
-		//cerr<<moves.size()<<' '<<"hi"<<endl;
-		int ran = rand()%moves.size();
+		int ran = random_player->ids_pruning(5, tree);
+		//int ran = rand()%moves.size();
 		char temp;
 		// char z,h;
 		// cin>>z;
@@ -72,9 +71,7 @@ int main()
 			temp='B';
 		else
 			temp = 'M';
-		//this_thread::sleep_for(chrono::milliseconds(2000));
 		cout<< 'S'<<' '<<moves.at(ran).x1<<' '<<moves.at(ran).y1<<' '<<temp<<' '<<moves.at(ran).x2<<' '<<moves.at(ran).y2<<endl;
-		printcn(random_player->current_state->cannons);
 		//opponents move
 		char s,b;
 		cin>>s;
