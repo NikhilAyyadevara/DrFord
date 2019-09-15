@@ -16,7 +16,6 @@ node* player::tree_build(int depth, bool enemy, game_state* state)
 	{
 		node* root = new node(state);
 		vector<pair<int, game_state*> > next_states = state->possible_states(enemy);
-		//cerr<<"b = "<<next_states.size()<<endl;
 		for(int i=0;i<next_states.size();++i)
 		{
 			node* child = tree_build(depth-1, !enemy, next_states.at(i).second);
@@ -40,31 +39,32 @@ bool descending(node* node1, node* node2)
 double player::min_val(node* state, double alpha, double beta, int depth)
 {
 	double res = INFINITY;
-	if(depth == 0) 
+	if(depth == 0)
 	{
-		res = state->current_state->evaluation_function();
-		state->eval_value = res;
+		res = state->eval_value;
+		// res = state->current_state->evaluation_function();
+		// state->eval_value = res;
 		return res;
 	}
-	//sort(state->children.begin(), state->children.end(), 
+	//sort(state->children.begin(), state->children.end(),
 	vector<node*> childr = state->children;
 	int num_child = childr.size();
 	for(int i=0; i<num_child; i++)
 	{
 		double temp = max_val(childr[i], alpha, beta, depth - 1);
-		if(temp < res)
-		{
-			res = temp;
-			beta = min(res, beta);
-			if(beta <= alpha)
+		//if(temp < res)
+		//{
+			res = min(res,temp);
+			if(res <= alpha)
 			{
 				state->eval_value = res;
 				sort(childr.begin(), childr.begin()+i, ascending);
 				return res;
 			}
-		}
+			beta = min(res, beta);
+		//}
 	}
-	sort(childr.begin(), childr.end(), ascending); 
+	sort(childr.begin(), childr.end(), ascending);
 	state->eval_value = res;
 	return res;
 }
@@ -72,28 +72,28 @@ double player::min_val(node* state, double alpha, double beta, int depth)
 double player::max_val(node* state, double alpha, double beta, int depth)
 {
 	double res = -1*INFINITY;
-	if(depth == 0) 
+	if(depth == 0)
 	{
 		res = state->current_state->evaluation_function();
 		state->eval_value = res;
-		return res;	
-	}	
+		return res;
+	}
 	vector<node*> childr = state->children;
 	int num_child = childr.size();
 	for(int i=0; i<num_child; i++)
 	{
 		double temp = min_val(childr[i], alpha, beta, depth - 1);
-		if(temp > res)
-		{
-			res = temp;
-			alpha = max(alpha, res);
-			if(beta <= alpha)
+		//if(temp > res)
+		//{
+			res = max(res,temp);
+			if(beta <= res)
 			{
 				state->eval_value = res;
 				sort(childr.begin(), childr.begin()+i, descending);
 				return res;
-			} 
-		}
+			}
+			alpha = max(alpha, res);
+		//}
 	}
 	sort(childr.begin(), childr.end(), descending);
 	state->eval_value = res;
@@ -133,5 +133,7 @@ int player::ids_pruning(int max_depth, node* root)
 	return res;
 }
 
-
-
+//
+// int main()
+// {
+// }

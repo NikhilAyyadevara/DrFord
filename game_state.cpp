@@ -16,12 +16,13 @@ game_state::game_state(game_state* g)
 	cannons=g->cannons;
 	enemy_cannons=g->enemy_cannons;
 	townhalls=g->townhalls;
-	enemy_townhalls=g->townhalls;
+	enemy_townhalls=g->enemy_townhalls;
 
 }
 
 game_state::game_state(int a, int x, int y)
 {
+	soldier *s, *s1;
 	id=a;
 	X=x;
 	Y=y;
@@ -33,9 +34,9 @@ game_state::game_state(int a, int x, int y)
 			townhalls.push_back(make_pair((2*i+1), y-1));
 			for(int j=0;j<3;++j)
 			{
-				soldier* s = new soldier(2*i, y-1-j);
+				s = new soldier(2*i, y-1-j);
 				soldiers.push_back(*s);
-				soldier* s1 = new soldier(2*i+1, j);
+				s1 = new soldier(2*i+1, j);
 				enemy_soldiers.push_back(*s1);
 				if(j==1)
 				{
@@ -53,9 +54,9 @@ game_state::game_state(int a, int x, int y)
 			enemy_townhalls.push_back(make_pair((2*i+1),y-1));
 			for(int j=0;j<3;++j)
 			{
-				soldier* s = new soldier(2*i,y-1-j);
+				s = new soldier(2*i,y-1-j);
 				enemy_soldiers.push_back(*s);
-				soldier* s1 = new soldier(2*i+1,j);
+				s1 = new soldier(2*i+1,j);
 				soldiers.push_back(*s1);
 				if(j==1)
 				{
@@ -63,8 +64,10 @@ game_state::game_state(int a, int x, int y)
 					cannons.push_back(make_pair(*s1,0));
 				}
 			}
-		}		
+		}
 	}
+	delete s;
+	delete s1;
 }
 
 vector<int> game_state::find_Cannon(int x1, int y1, bool enemy)
@@ -403,7 +406,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 				//enemy cannon formation
 				add_cannons(x2, y2, true);
 				///my coins dying
-				//soldier dying 
+				//soldier dying
 				int killed_soldier = find_soldier(x2, y2, false);
 				if(killed_soldier != -1)
 				{
@@ -443,7 +446,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 		else
 		{
 			///my coins dying
-			//soldier dying 
+			//soldier dying
 			int killed_soldier = find_soldier(x2, y2, false);
 			if(killed_soldier != -1)
 			{
@@ -461,14 +464,22 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 	}
 }
 
-int townhall_scores[3][3] = {{0,2,0},{8,5,3},{10,7,5}};
+int townhall_scores[3][3] = {	{0,2,0},
+															{8,5,3},
+															{10,7,5}	};
 double game_state::evaluation_function()
 {
-	double res;
-	double soldiers_wt = 0.01*(soldiers.size() - enemy_soldiers.size());
-	double cannon_wt = 0.03*(cannons.size()-enemy_cannons.size());
-	double townhalls_wt = townhall_scores[townhalls.size()-2][enemy_townhalls.size()-2];
-	res = soldiers_wt + townhalls_wt + cannon_wt; 
+	double res = 0;
+	double soldiers_wt = 0.01*((double)soldiers.size() - (double)enemy_soldiers.size());
+	//cerr << soldiers_wt << endl;
+	double cannon_wt = 0.003*((double)cannons.size() - (double)enemy_cannons.size());
+	//cerr << "cannons_size: "<< cannons.size()<<endl;
+	//cerr << "enemY_cannons_size: "<< enemy_cannons.size()<<endl;
+	//cerr << cannon_wt << endl;
+	double townhalls_wt = townhall_scores[((int)townhalls.size()-2)][((int)enemy_townhalls.size()-2)];
+	//cerr << townhalls_wt << endl;
+	res = soldiers_wt + townhalls_wt + cannon_wt;
+	//cerr << res << endl;
 	return res;
 }
 
@@ -502,29 +513,29 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x+1,y+1,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				if(y<(y_dim-1) && (x>0) && this->find_soldier(x-1,y+1,enemy)==-1)//negative diagonal move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x-1,y+1,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				//sideways killer moves
-				if(x < (x_dim -1) && this->find_soldier(x+1,y,!enemy)!=-1)//positive horiontal killer move 
+				if(x < (x_dim -1) && (this->find_soldier(x+1,y,!enemy)!=-1 || this->find_townhall(x+1,y,!enemy)!=-1))//positive horiontal killer move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x+1,y,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
-				if(x > 0 && this->find_soldier(x-1,y,!enemy)!=-1)//negative horiontal killer move 
+				if(x > 0 && (this->find_soldier(x-1,y,!enemy)!=-1 || this->find_townhall(x-1,y,!enemy)!=-1) )//negative horiontal killer move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x-1,y,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				//retreat backard moves
 				if(this->find_soldier(x-1,y,!enemy) != -1 || this->find_soldier(x+1,y,!enemy) != -1 || this->find_soldier(x-1,y+1,!enemy) != -1
@@ -556,7 +567,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					}
 				}
 			}
-			else if(id==0)//we are black 
+			else if(id==0)//we are black
 			{
 				//forward soldier
 				if(y>0 && this->find_soldier(x,(y-1),enemy)==-1)//forward move
@@ -571,29 +582,29 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x-1,y-1,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				if(y>0 && (x<x_dim-1) && this->find_soldier(x+1,y-1,enemy)==-1)//negative diagonal move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x+1,y-1,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				//sideways killer moves
-				if(x < (x_dim -1) && this->find_soldier(x+1,y,!enemy)!=-1)//positive horiontal killer move 
+				if(x < (x_dim -1) && (this->find_soldier(x+1,y,!enemy)!=-1 || this->find_townhall(x+1,y,!enemy)!=-1 ) )//positive horiontal killer move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x+1,y,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
-				if(x > 0 && this->find_soldier(x-1,y,!enemy)!=-1)//negative horiontal killer move 
+				if(x > 0 && (this->find_soldier(x-1,y,!enemy)!=-1 || this->find_townhall(x-1,y,!enemy)!=-1))//negative horiontal killer move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x-1,y,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				//retreat backard moves
 				if(this->find_soldier(x-1,y,!enemy) != -1 || this->find_soldier(x+1,y,!enemy) != -1 || this->find_soldier(x-1,y-1,!enemy) != -1
@@ -626,7 +637,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 				}
 			}
 		}
-		
+
 		///Cannon
 		for(int i=0; i<cannons.size(); i++)
 		{
@@ -658,14 +669,14 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 			int x_temp_1 = x + 2*x_par;
 			int y_temp_1 = y + 2*y_par;
 			int x_temp_2 = x - 2*x_par;
-			int y_temp_2 = y - 2*y_par; 
+			int y_temp_2 = y - 2*y_par;
 			if(x_temp_1 >= 0 && x_temp_1 < x_dim && y_temp_1 >= 0 && y_temp_1 <y_dim && this->find_soldier(x_temp_1, y_temp_1, true) == -1 &&
 			 this->find_soldier(x_temp_1, y_temp_1, false) == -1 && this->find_townhall(x_temp_1, y_temp_1, true) == -1 &&
 			 this->find_townhall(x_temp_1, y_temp_1, false) == -1 )
 			{
 				//game_state g = *this;
 				game_state* g = new game_state(this);
-				g->change_state(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0,enemy); 
+				g->change_state(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0,enemy);
 				moves.push_back(make_pair(moves.size(),g));
 				// cannon bombs
 				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && this->find_soldier(x+3*x_par, y+3*y_par, false) == -1 &&
@@ -711,7 +722,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					moves.push_back(make_pair(moves.size(),g));
 				}
 			}
-			
+
 		}
 	}
 	else
@@ -739,29 +750,29 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x+1,y+1,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				if(y<(y_dim-1) && (x>0) && this->find_soldier(x-1,y+1,enemy)==-1)//negative diagonal move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x-1,y+1,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				//sideways killer moves
-				if(x < (x_dim -1) && this->find_soldier(x+1,y,!enemy)!=-1)//positive horiontal killer move 
+				if(x < (x_dim -1) && (this->find_soldier(x+1,y,!enemy)!=-1 || this->find_townhall(x+1,y,!enemy)!=-1) )//positive horiontal killer move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x+1,y,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
-				if(x > 0 && this->find_soldier(x-1,y,!enemy)!=-1)//negative horiontal killer move 
+				if(x > 0 && (this->find_soldier(x-1,y,!enemy)!=-1 || this->find_townhall(x-1,y,!enemy)!=-1))//negative horiontal killer move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x-1,y,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				//retreat backard moves
 				if(this->find_soldier(x-1,y,!enemy) != -1 || this->find_soldier(x+1,y,!enemy) != -1 || this->find_soldier(x-1,y+1,!enemy) != -1
@@ -808,29 +819,29 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x-1,y-1,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				if(y>0 && (x<x_dim-1) && this->find_soldier(x+1,y-1,enemy)==-1)//negative diagonal move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x+1,y-1,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				//sideways killer moves
-				if(x < (x_dim -1) && this->find_soldier(x+1,y,!enemy)!=-1)//positive horiontal killer move 
+				if(x < (x_dim -1) && (this->find_soldier(x+1,y,!enemy)!=-1  || this->find_townhall(x+1,y,!enemy)!=-1))//positive horiontal killer move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x+1,y,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
-				if(x > 0 && this->find_soldier(x-1,y,!enemy)!=-1)//negative horiontal killer move 
+				if(x > 0 && (this->find_soldier(x-1,y,!enemy)!=-1 || this->find_townhall(x-1,y,!enemy)!=-1))//negative horiontal killer move
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x-1,y,0,enemy);
-					moves.push_back(make_pair(moves.size(),g));					
+					moves.push_back(make_pair(moves.size(),g));
 				}
 				//retreat backard moves
 				if(this->find_soldier(x-1,y,!enemy) != -1 || this->find_soldier(x+1,y,!enemy) != -1 || this->find_soldier(x-1,y-1,!enemy) != -1
@@ -863,7 +874,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 				}
 			}
 		}
-		
+
 		///Cannon
 		for(int i=0; i<cannons.size(); i++)
 		{
@@ -895,14 +906,14 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 			int x_temp_1 = x + 2*x_par;
 			int y_temp_1 = y + 2*y_par;
 			int x_temp_2 = x - 2*x_par;
-			int y_temp_2 = y - 2*y_par; 
+			int y_temp_2 = y - 2*y_par;
 			if(x_temp_1 >= 0 && x_temp_1 < x_dim && y_temp_1 >= 0 && y_temp_1 <y_dim && this->find_soldier(x_temp_1, y_temp_1, true) == -1 &&
 			 this->find_soldier(x_temp_1, y_temp_1, false) == -1 && this->find_townhall(x_temp_1, y_temp_1, true) == -1 &&
 			 this->find_townhall(x_temp_1, y_temp_1, false) == -1 )
 			{
 				//game_state g = *this;
 				game_state* g = new game_state(this);
-				g->change_state(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0,enemy); 
+				g->change_state(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0,enemy);
 				moves.push_back(make_pair(moves.size(),g));
 				// cannon bombs
 				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && this->find_soldier(x+3*x_par, y+3*y_par, true) == -1 &&
@@ -974,38 +985,33 @@ vector<Move> game_state::possible_moves(bool enemy)
 				if(y<(y_dim-1) && this->find_soldier(x,(y+1),enemy)==-1)//forward move
 				{
 
-					Move* g = new Move(x,y,x,y+1,0);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x,y+1,0));
+
 				}
 				if(y<(y_dim-1) && (x<x_dim-1) && this->find_soldier(x+1,y+1,enemy)==-1)//positive diagonal move
 				{
 
-					Move* g = new Move(x,y,x+1,y+1,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x+1,y+1,0));
+
 				}
 				if(y<(y_dim-1) && (x>0) && this->find_soldier(x-1,y+1,enemy)==-1)//negative diagonal move
 				{
 
-					Move* g = new Move(x,y,x-1,y+1,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x-1,y+1,0));
+
 				}
 				//sideways killer moves
-				if(x < (x_dim -1) && this->find_soldier(x+1,y,!enemy)!=-1)//positive horiontal killer move 
+				if(x < (x_dim -1) && (this->find_soldier(x+1,y,!enemy)!=-1 || this->find_townhall(x+1,y,!enemy)!=-1) )//positive horiontal killer move
 				{
 
-					Move* g = new Move(x,y,x+1,y,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x+1,y,0));
+
 				}
-				if(x > 0 && this->find_soldier(x-1,y,!enemy)!=-1)//negative horiontal killer move 
+				if(x > 0 && (this->find_soldier(x-1,y,!enemy)!=-1 || this->find_townhall(x-1,y,!enemy)!=-1))//negative horiontal killer move
 				{
 
-					Move* g = new Move(x,y,x-1,y,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x-1,y,0));
+
 				}
 				//retreat backard moves
 				if(this->find_soldier(x-1,y,!enemy) != -1 || this->find_soldier(x+1,y,!enemy) != -1 || this->find_soldier(x-1,y+1,!enemy) != -1
@@ -1014,67 +1020,59 @@ vector<Move> game_state::possible_moves(bool enemy)
 					//backward
 					if((y-2) >= 0 && this->find_soldier(x,y-2,enemy) == -1 && this->find_townhall(x,y-2,enemy) == -1)
 					{
-	
-						Move* g = new Move(x,y,x,y-2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x,y-2,0));
+
 					}
 					//positive diagonal
 					if((y-2)>=0 && (x-2)>=0 && this->find_soldier(x-2,y-2,enemy) == -1 && this->find_townhall(x-2,y-2,enemy) == -1)
 					{
-	
-						Move* g = new Move(x,y,x-2,y-2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x-2,y-2,0));
+
 					}
 					//negative diagonal
 					if((y-2)>=0 && (x+2)< x_dim && this->find_soldier(x+2,y-2,enemy)==-1 && this->find_townhall(x+2,y-2,enemy)==-1)
 					{
-	
-						Move* g = new Move(x,y,x+2,y-2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x+2,y-2,0));
+
 					}
 				}
 			}
-			else if(id==0)//we are black 
+			else if(id==0)//we are black
 			{
 				//forward soldier
 				if(y>0 && this->find_soldier(x,(y-1),enemy)==-1)//forward move
 				{
 
-					Move* g = new Move(x,y,x,y-1,0);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x,y-1,0));
+
 				}
 				if(y>0 && x>0 && this->find_soldier(x-1,y-1,enemy)==-1)//positive diagonal move
 				{
 
-					Move* g = new Move(x,y,x-1,y-1,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x-1,y-1,0));
+
 				}
 				if(y>0 && (x<x_dim-1) && this->find_soldier(x+1,y-1,enemy)==-1)//negative diagonal move
 				{
 
-					Move* g = new Move(x,y,x+1,y-1,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x+1,y-1,0));
+
 				}
 				//sideways killer moves
-				if(x < (x_dim -1) && this->find_soldier(x+1,y,!enemy)!=-1)//positive horiontal killer move 
+				if(x < (x_dim -1) && (this->find_soldier(x+1,y,!enemy)!=-1 || this->find_townhall(x+1,y,!enemy)!=-1) )//positive horiontal killer move
 				{
 
-					Move* g = new Move(x,y,x+1,y,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x+1,y,0));
+
 				}
-				if(x > 0 && this->find_soldier(x-1,y,!enemy)!=-1)//negative horiontal killer move 
+				if(x > 0 && (this->find_soldier(x-1,y,!enemy)!=-1 || this->find_townhall(x-1,y,!enemy)!=-1))//negative horiontal killer move
 				{
 
-					Move* g = new Move(x,y,x-1,y,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x-1,y,0));
+
 				}
 				//retreat backard moves
 				if(this->find_soldier(x-1,y,!enemy) != -1 || this->find_soldier(x+1,y,!enemy) != -1 || this->find_soldier(x-1,y-1,!enemy) != -1
@@ -1083,31 +1081,28 @@ vector<Move> game_state::possible_moves(bool enemy)
 					//backward
 					if((y+2<y_dim) && this->find_soldier(x,y+2,enemy) == -1 && this->find_townhall(x,y+2,enemy) == -1)
 					{
-	
-						Move* g = new Move(x,y,x,y+2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x,y+2,0));
+
 					}
 					//positive diagonal
 					if((y+2<y_dim) && (x+2<x_dim) && this->find_soldier(x+2,y+2,enemy) == -1 && this->find_townhall(x+2,y+2,enemy) == -1)
 					{
-	
-						Move* g = new Move(x,y,x+2,y+2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x+2,y+2,0));
+
 					}
 					//negative diagonal
 					if((y+2<y_dim) && (x-2>=0) && this->find_soldier(x-2,y+2,enemy)==-1 && this->find_townhall(x-2,y+2,enemy)==-1)
 					{
-	
-						Move* g = new Move(x,y,x-2,y+2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x-2,y+2,0));
+
 					}
 				}
 			}
 		}
-		
+
 		///Cannon
 		for(int i=0; i<cannons.size(); i++)
 		{
@@ -1139,55 +1134,49 @@ vector<Move> game_state::possible_moves(bool enemy)
 			int x_temp_1 = x + 2*x_par;
 			int y_temp_1 = y + 2*y_par;
 			int x_temp_2 = x - 2*x_par;
-			int y_temp_2 = y - 2*y_par; 
+			int y_temp_2 = y - 2*y_par;
 			if(x_temp_1 >= 0 && x_temp_1 < x_dim && y_temp_1 >= 0 && y_temp_1 <y_dim && this->find_soldier(x_temp_1, y_temp_1, true) == -1 &&
 			 this->find_soldier(x_temp_1, y_temp_1, false) == -1 && this->find_townhall(x_temp_1, y_temp_1, true) == -1 &&
 			 this->find_townhall(x_temp_1, y_temp_1, false) == -1 )
 			{
-				Move* g = new Move(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0); 
-				moves.push_back(*g);
-				delete g;
+				moves.push_back(Move(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0));
+
 				// cannon bombs
 				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && this->find_soldier(x+3*x_par, y+3*y_par, false) == -1 &&
 				 this->find_townhall(x+3*x_par, y+3*y_par, false) == -1 )
 				{
 
-					Move* g = new Move(x,y,x+3*x_par,y+3*y_par,1);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x+3*x_par,y+3*y_par,1));
+
 				}
 				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && this->find_soldier(x+4*x_par, y+4*y_par, false) == -1 &&
 				 this->find_townhall(x+4*x_par, y+4*y_par, false) == -1)
 				{
 
-					Move* g = new Move(x,y,x+4*x_par,y+4*y_par,1);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x+4*x_par,y+4*y_par,1));
+
 				}
 			}
 			if(x_temp_2 >= 0 && x_temp_2 < x_dim && y_temp_2 >= 0 && y_temp_2 <y_dim && this->find_soldier(x_temp_2, y_temp_2, true) == -1 &&
 			 this->find_soldier(x_temp_2, y_temp_2, false) == -1 && this->find_soldier(x_temp_2, y_temp_2, true) == -1 &&
 			 this->find_soldier(x_temp_2, y_temp_2, false) == -1)
 			{
-				Move* g = new Move(x+x_par,y+y_par,x_temp_2,y_temp_2 ,0);
-				moves.push_back(*g);
-				delete g;
+				moves.push_back(Move(x+x_par,y+y_par,x_temp_2,y_temp_2 ,0));
+
 				// cannon bombs
 				if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && this->find_soldier(x-3*x_par, y-3*y_par, false) == -1 &&
 				 this->find_townhall(x-3*x_par, y-3*y_par, false) == -1)
 				{
 
-					Move* g = new Move(x,y,x-3*x_par,y-3*y_par,1);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x-3*x_par,y-3*y_par,1));
+
 				}
 				if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && this->find_soldier(x-4*x_par, y-4*y_par, false) == -1 &&
 				 this->find_townhall(x-4*x_par, y-4*y_par, false) == -1)
 				{
 
-					Move* g = new Move(x,y,x-4*x_par,y-4*y_par,1);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x-4*x_par,y-4*y_par,1));
+
 				}
 			}
 		}
@@ -1208,39 +1197,34 @@ vector<Move> game_state::possible_moves(bool enemy)
 				if(y<(y_dim-1) && this->find_soldier(x,(y+1),enemy)==-1)//forward move
 				{
 
-					Move* g = new Move(x,y,x,y+1,0);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x,y+1,0));
+
 
 				}
 				if(y<(y_dim-1) && (x<x_dim-1) && this->find_soldier(x+1,y+1,enemy)==-1)//positive diagonal move
 				{
 
-					Move* g = new Move(x,y,x+1,y+1,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x+1,y+1,0));
+
 				}
 				if(y<(y_dim-1) && (x>0) && this->find_soldier(x-1,y+1,enemy)==-1)//negative diagonal move
 				{
 
-					Move* g = new Move(x,y,x-1,y+1,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x-1,y+1,0));
+
 				}
 				//sideways killer moves
-				if(x < (x_dim -1) && this->find_soldier(x+1,y,!enemy)!=-1)//positive horiontal killer move 
+				if(x < (x_dim -1) && (this->find_soldier(x+1,y,!enemy)!=-1 ||this->find_townhall(x+1,y,!enemy)!=-1) )//positive horiontal killer move
 				{
 
-					Move* g = new Move(x,y,x+1,y,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x+1,y,0));
+
 				}
-				if(x > 0 && this->find_soldier(x-1,y,!enemy)!=-1)//negative horiontal killer move 
+				if(x > 0 && (this->find_soldier(x-1,y,!enemy)!=-1 || this->find_townhall(x-1,y,!enemy)!=-1))//negative horiontal killer move
 				{
 
-					Move* g = new Move(x,y,x-1,y,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x-1,y,0));
+
 				}
 				//retreat backard moves
 				if(this->find_soldier(x-1,y,!enemy) != -1 || this->find_soldier(x+1,y,!enemy) != -1 || this->find_soldier(x-1,y+1,!enemy) != -1
@@ -1249,26 +1233,23 @@ vector<Move> game_state::possible_moves(bool enemy)
 					//backward
 					if((y-2) >= 0 && this->find_soldier(x,y-2,enemy) == -1 && this->find_townhall(x,y-2,enemy) == -1)
 					{
-	
-						Move* g = new Move(x,y,x,y-2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x,y-2,0));
+
 					}
 					//positive diagonal
 					if((y-2)>=0 && (x-2)>=0 && this->find_soldier(x-2,y-2,enemy) == -1 && this->find_townhall(x-2,y-2,enemy) == -1)
 					{
-	
-						Move* g = new Move(x,y,x-2,y-2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x-2,y-2,0));
+
 					}
 					//negative diagonal
 					if((y-2)>=0 && (x+2)< x_dim && this->find_soldier(x+2,y-2,enemy)==-1 && this->find_townhall(x+2,y-2,enemy)==-1)
 					{
-	
-						Move* g = new Move(x,y,x+2,y-2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x+2,y-2,0));
+
 					}
 				}
 			}
@@ -1278,38 +1259,33 @@ vector<Move> game_state::possible_moves(bool enemy)
 				if(y>0 && this->find_soldier(x,(y-1),enemy)==-1)//forward move
 				{
 
-					Move* g = new Move(x,y,x,y-1,0);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x,y-1,0));
+
 				}
 				if(y>0 && x>0 && this->find_soldier(x-1,y-1,enemy)==-1)//positive diagonal move
 				{
 
-					Move* g = new Move(x,y,x-1,y-1,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x-1,y-1,0));
+
 				}
 				if(y>0 && (x<x_dim-1) && this->find_soldier(x+1,y-1,enemy)==-1)//negative diagonal move
 				{
 
-					Move* g = new Move(x,y,x+1,y-1,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x+1,y-1,0));
+
 				}
 				//sideways killer moves
-				if(x < (x_dim -1) && this->find_soldier(x+1,y,!enemy)!=-1)//positive horiontal killer move 
+				if(x < (x_dim -1) && (this->find_soldier(x+1,y,!enemy)!=-1 || this->find_townhall(x+1,y,!enemy)!=-1))//positive horiontal killer move
 				{
 
-					Move* g = new Move(x,y,x+1,y,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x+1,y,0));
+
 				}
-				if(x > 0 && this->find_soldier(x-1,y,!enemy)!=-1)//negative horiontal killer move 
+				if(x > 0 && (this->find_soldier(x-1,y,!enemy)!=-1 || this->find_townhall(x-1,y,!enemy)!=-1))//negative horiontal killer move
 				{
 
-					Move* g = new Move(x,y,x-1,y,0);
-					moves.push_back(*g);
-					delete g;					
+					moves.push_back(Move(x,y,x-1,y,0));
+
 				}
 				//retreat backard moves
 				if(this->find_soldier(x-1,y,!enemy) != -1 || this->find_soldier(x+1,y,!enemy) != -1 || this->find_soldier(x-1,y-1,!enemy) != -1
@@ -1318,31 +1294,28 @@ vector<Move> game_state::possible_moves(bool enemy)
 					//backward
 					if((y+2<y_dim) && this->find_soldier(x,y+2,enemy) == -1 && this->find_townhall(x,y+2,enemy) == -1)
 					{
-	
-						Move* g = new Move(x,y,x,y+2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x,y+2,0));
+
 					}
 					//positive diagonal
 					if((y+2<y_dim) && (x+2<x_dim) && this->find_soldier(x+2,y+2,enemy) == -1 && this->find_townhall(x+2,y+2,enemy) == -1)
 					{
-	
-						Move* g = new Move(x,y,x+2,y+2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x+2,y+2,0));
+
 					}
 					//negative diagonal
 					if((y+2<y_dim) && (x-2>=0) && this->find_soldier(x-2,y+2,enemy)==-1 && this->find_townhall(x-2,y+2,enemy)==-1)
 					{
-	
-						Move* g = new Move(x,y,x-2,y+2,0);
-						moves.push_back(*g);
-						delete g;
+
+						moves.push_back(Move(x,y,x-2,y+2,0));
+
 					}
 				}
 			}
 		}
-		
+
 		///Cannon
 		for(int i=0; i<cannons.size(); i++)
 		{
@@ -1374,55 +1347,49 @@ vector<Move> game_state::possible_moves(bool enemy)
 			int x_temp_1 = x + 2*x_par;
 			int y_temp_1 = y + 2*y_par;
 			int x_temp_2 = x - 2*x_par;
-			int y_temp_2 = y - 2*y_par; 
+			int y_temp_2 = y - 2*y_par;
 			if(x_temp_1 >= 0 && x_temp_1 < x_dim && y_temp_1 >= 0 && y_temp_1 <y_dim && this->find_soldier(x_temp_1, y_temp_1, true) == -1 &&
 			 this->find_soldier(x_temp_1, y_temp_1, false) == -1 && this->find_townhall(x_temp_1, y_temp_1, true) == -1 &&
 			 this->find_townhall(x_temp_1, y_temp_1, false) == -1 )
 			{
-				Move* g = new Move(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0); 
-				moves.push_back(*g);
-				delete g;
+				moves.push_back(Move(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0));
+
 				// cannon bombs
 				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && this->find_soldier(x+3*x_par, y+3*y_par, true) == -1 &&
 				 this->find_townhall(x+3*x_par, y+3*y_par, true) == -1 )
 				{
 
-					Move* g = new Move(x,y,x+3*x_par,y+3*y_par,1);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x+3*x_par,y+3*y_par,1));
+
 				}
 				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && this->find_soldier(x+4*x_par, y+4*y_par, true) == -1 &&
 				 this->find_townhall(x+4*x_par, y+4*y_par, true) == -1)
 				{
 
-					Move* g = new Move(x,y,x+4*x_par,y+4*y_par,1);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x+4*x_par,y+4*y_par,1));
+
 				}
 			}
 			if(x_temp_2 >= 0 && x_temp_2 < x_dim && y_temp_2 >= 0 && y_temp_2 <y_dim && this->find_soldier(x_temp_2, y_temp_2, true) == -1 &&
 			 this->find_soldier(x_temp_2, y_temp_2, false) == -1 && this->find_soldier(x_temp_2, y_temp_2, true) == -1 &&
 			 this->find_soldier(x_temp_2, y_temp_2, false) == -1)
 			{
-				Move* g = new Move(x+x_par,y+y_par,x_temp_2,y_temp_2 ,0);
-				moves.push_back(*g);
-				delete g;
+				moves.push_back(Move(x+x_par,y+y_par,x_temp_2,y_temp_2 ,0));
+
 				// cannon bombs
 				if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && this->find_soldier(x-3*x_par, y-3*y_par, true) == -1 &&
 				 this->find_townhall(x-3*x_par, y-3*y_par, true) == -1)
 				{
 
-					Move* g = new Move(x,y,x-3*x_par,y-3*y_par,1);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x-3*x_par,y-3*y_par,1));
+
 				}
 				if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && this->find_soldier(x-4*x_par, y-4*y_par, true) == -1 &&
 				 this->find_townhall(x-4*x_par, y-4*y_par, true) == -1)
 				{
 
-					Move* g = new Move(x,y,x-4*x_par,y-4*y_par,1);
-					moves.push_back(*g);
-					delete g;
+					moves.push_back(Move(x,y,x-4*x_par,y-4*y_par,1));
+
 				}
 			}
 		}

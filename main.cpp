@@ -25,9 +25,7 @@ int main()
 	srand(time(0));
 
 	id--;
-
 	player* random_player = new player(id,x_dim,y_dim,time_left);
-
 	if(id==1)
 	{
 		//waiting for opponents move
@@ -44,17 +42,18 @@ int main()
 			cin>>y2;
 			bomb = (b=='B');
 		}
-		random_player->current_state->change_state(x1,y1,x2,y2,bomb,true);
+	random_player->current_state->change_state(x1,y1,x2,y2,bomb,true);
 	}
 
+	int depth = 4;
 	while(true)
 	{
 		//our move
 		double remaining_time = random_player->remaining_time;
 		//if(remaining_time<15)
-		node* tree = random_player->tree_build(5, false, random_player->current_state);
+		node* tree = random_player->tree_build(depth, false, random_player->current_state);
 		vector<Move> moves = random_player->current_state->possible_moves(false);
-		int ran = random_player->ids_pruning(5, tree);
+		int ran = random_player->ids_pruning(depth, tree);
 		//int ran = rand()%moves.size();
 		char temp;
 		// char z,h;
@@ -67,6 +66,8 @@ int main()
 		// cin>>b2;
 		// random_player->current_state->change_state(a1,b1,a2,b2,(h=='B'),false);
 		random_player->current_state->change_state(moves.at(ran).x1, moves.at(ran).y1, moves.at(ran).x2, moves.at(ran).y2, moves.at(ran).bomb, false);
+		delete tree;
+
 		if(moves.at(ran).bomb)
 			temp='B';
 		else
@@ -86,7 +87,6 @@ int main()
 			cin>>y2;
 			bomb = (b=='B');
 		}
-
 		random_player->current_state->change_state(x1,y1,x2,y2,bomb,true);
 	}
 }

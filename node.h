@@ -10,4 +10,6 @@ class node
 		game_state* current_state;
 		vector<node*> children;
 		node(game_state* g);
+		~node();
+		//void delete_tree();
 };
