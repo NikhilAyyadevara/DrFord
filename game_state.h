@@ -21,6 +21,7 @@ class game_state
 		vector<pair<soldier, int> > enemy_cannons;
 		vector<pair<int, int> > townhalls;
 		vector<pair<int, int> > enemy_townhalls;
+		vector<vector<short> > board;
 
 	public:
 		//functions
@@ -37,4 +38,7 @@ class game_state
 		double evaluation_function();
 		vector<pair<int,game_state*> > possible_states(bool);
 		vector<Move> possible_moves(bool);
+		bool find_soldier_grid(int , int , bool );
+		bool find_townhall_grid(int , int , bool );
+		double mob();
 };
