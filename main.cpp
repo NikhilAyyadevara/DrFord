@@ -3,14 +3,6 @@
 
 using namespace std;
 
-void printcn(vector<pair<soldier, int> > cannons)
-{
-	for(int i=0; i<cannons.size(); i++)
-	{
-		cerr << "orient: " << cannons[i].second << " " << "sold_x: " << cannons[i].first.getX() << " " << "sold_y: " << cannons[i].first.getY() << endl;
-	}
-	cerr << "----------------------------------------------" << endl;
-}
 
 int main()
 {
@@ -51,23 +43,21 @@ int main()
 	while(true)
 	{
 		//our move
-		if(count==0)
+		if(count==0 && id==0)
 		{
-			if(id==0)
+
+			if(rand()%2 == 0)
 			{
-				if(rand()%2 == 0)
-				{
-					cout << "S 2 7 M 1 6" << endl;
-					random_player->current_state->change_state(2,7,1,6,0,false);
-				}
-
-				else
-				{
-					cout << "S 2 7 M 3 6" << endl;
-					random_player->current_state->change_state(2,7,3,6,0,false);
-				}
-
+				cout << "S 2 7 M 1 6" << endl;
+				random_player->current_state->change_state(2,7,1,6,0,false);
 			}
+
+			else
+			{
+				cout << "S 2 7 M 3 6" << endl;
+				random_player->current_state->change_state(2,7,3,6,0,false);
+			}
+			/*
 			else if(id==1)
 			{
 				if(rand()%2 == 0)
@@ -81,12 +71,14 @@ int main()
 					random_player->current_state->change_state(5,0,4,1,0,false);
 				}
 			}
-			cerr << "Random move" << endl;
+			*/
+			//cerr << "Random move" << endl;
 		}
 		else
 		{
 			vector<Move> moves = random_player->current_state->possible_moves(false);
-			int b = moves.size();
+			int b1 = random_player->current_state->possible_moves(true).size();
+			int b = max((int)moves.size() ,b1);
 			if(b>30)
 				depth=3;
 			else if(b>20)

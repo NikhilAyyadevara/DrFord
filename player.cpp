@@ -89,8 +89,6 @@ double player::max_val(node* state, double alpha, double beta, int depth)
 	double res = -1*INFINITY;
 	if(depth == 0 || terminal(state))
 	{
-				if(current_state->id==0 && terminal(state))
-			cerr<<"cdef"<<endl;
 		//res = state->current_state->evaluation_function();
 		res = state->eval_value;
 		return res;
