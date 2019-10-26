@@ -1,1 +1,1 @@
-g++ -O3 *.cpp
+g++ -O3 *.cpp -o DrFord
