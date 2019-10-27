@@ -752,6 +752,8 @@ double game_state::evaluation_function()
 	//double cannon_wt = 0.003*((double)cannons.size() - (double)enemy_cannons.size());
 	double townhalls_wt = townhall_scores[((int)townhalls.size()-((X/2)+1)/2)][((int)enemy_townhalls.size()-((X/2)+1)/2)];
 	double mobility_wt = 0.005*(mob());
+	if(((int)townhalls.size()-((X/2)+1)/2)==0 || ((int)enemy_townhalls.size()-((X/2)+1)/2)==0)
+		mobility_wt = 10;
 	res = soldiers_wt + townhalls_wt + mobility_wt;
 	//cerr << res << endl;
 	return res;
