@@ -512,9 +512,6 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 	}
 }
 
-int townhall_scores[3][3] = {{0,2,0},
-							{8,5,3},
-							{10,7,5}};
 
 //mobility
 double game_state::mob()
@@ -535,22 +532,22 @@ double game_state::mob()
 					res+= (1-id)*1;
 				else if(y==5)
 					res+= (1-id)*0.70;
-				else if(y== 6)
+				else if(y>= 6)
 					res+= (1-id)*0.3;
 			}
 			if( !find_soldier_grid(x,y+2,true) && !find_townhall_grid(x,y+2,true) && !find_soldier_grid(x,y+2,false) && !find_townhall_grid(x,y+2,false))
-				if(y>=3)
+				if(y>=Y-5)
 					res+= id*1;
-				else if(y==2)
+				else if(y==Y-6)
 					res+= id*0.7;
-				else if(y==1)
+				else if(y<=Y-7)
 					res+= id*0.3;
 				//res+= id*0.5;
 		}
 		else if(orient == 1)
 		{
 			if(!find_soldier_grid(x-2,y-2,true) && !find_townhall_grid(x-2,y-2,true) && !find_soldier_grid(x-2,y-2,false) && !find_townhall_grid(x-2,y-2,false))
-				if(x==6)
+				if(x>=6)
 					res+= (1-id)*1;
 				else if(x==5)
 					res+= (1-id)*0.7;
@@ -558,23 +555,23 @@ double game_state::mob()
 					res+= (1-id)*0.3;
 				//res+=0.5;
 			if(!find_soldier_grid(x+2,y+2,true) && !find_townhall_grid(x+2,y+2,true) && !find_soldier_grid(x+2,y+2,false) && !find_townhall_grid(x+2,y+2,false))
-				if(x==1)
+				if(x<=X-7)
 					res+= id*1;
-				else if(x==2)
+				else if(x<=X-6)
 					res+= id*0.7;
-				else if(x<=5)
+				else if(x<=X-3)
 					res+= id*0.3;
 		}
 		else if(orient == 2)
 		{
 			if(flag == 0 &&  !find_soldier_grid(x-2,y,true) && !find_townhall_grid(x-2,y,true) && !find_soldier_grid(x-2,y,false) && !find_townhall_grid(x-2,y,false))
-				if(y>=5 && x>=1 && x<=6)
+				if(y>=Y-3 && x>=1 && x<=X-2)
 				{
 					res+=0.5;
 					flag = 1;
 				}
 			if(flag == 0 && !find_soldier_grid(x+2,y,true) && !find_townhall_grid(x+2,y,true) && !find_soldier_grid(x+2,y,false) && !find_townhall_grid(x+2,y,false))
-				if(y<=2 && x>=1 && x<=6)
+				if(y<=2 && x>=1 && x<=X-2)
 				{
 					res+=0.5;
 					flag =1;
@@ -588,10 +585,10 @@ double game_state::mob()
 					res+=(1-id)*1;
 				else if(x==2)
 					res+= (1-id)*0.7;
-				else if(x<=5)
+				else if(x<=X-3)
 					res+= (1-id)*0.3;
 			if(!find_soldier_grid(x+2,y-2,true) && !find_townhall_grid(x+2,y-2,true) && !find_soldier_grid(x+2,y-2,false) && !find_townhall_grid(x+2,y-2,false))
-				if(x==6)
+				if(x>=6)
 					res+= (id)*1;
 				else if(x==5)
 					res+= (id)*0.7;
@@ -614,21 +611,21 @@ double game_state::mob()
 					res-= (id)*1;
 				else if(y==5)
 					res-= (id)*0.70;
-				else if(y== 6)
+				else if(y>= 6)
 					res-= (id)*0.3;
 			}
 			if( !find_soldier_grid(x,y+2,false) && !find_townhall_grid(x,y+2,false) && !find_soldier_grid(x,y+2,true) && !find_townhall_grid(x,y+2,true))
-				if(y>=3)
+				if(y>=Y-5)
 					res-= (1-id)*1;
-				else if(y==2)
+				else if(y==Y-6)
 					res-= (1-id)*0.7;
-				else if(y==1)
+				else if(y==Y-7)
 					res-= (1-id)*0.3;
 		}
 		else if(orient == 1)
 		{
 			if(!find_soldier_grid(x-2,y-2,false) && !find_townhall_grid(x-2,y-2,false) && !find_soldier_grid(x-2,y-2,true) && !find_townhall_grid(x-2,y-2,true))
-				if(x==6)
+				if(x>=6)
 					res-= (id)*1;
 				else if(x==5)
 					res-= (id)*0.7;
@@ -636,23 +633,23 @@ double game_state::mob()
 					res-= (id)*0.3;
 				//res-=0.5;
 			if(!find_soldier_grid(x+2,y+2,false) && !find_townhall_grid(x+2,y+2,false) && !find_soldier_grid(x+2,y+2,true) && !find_townhall_grid(x+2,y+2,true))
-				if(x==1)
+				if(x<=X-7)
 					res-= (1-id)*1;
-				else if(x==2)
+				else if(x<=X-6)
 					res-= (1-id)*0.7;
-				else if(x<=5)
+				else if(x<=X-3)
 					res-= (1-id)*0.3;
 		}
 		else if(orient == 2)
 		{
 			if(flag == 0 && !find_soldier_grid(x-2,y,false) && !find_townhall_grid(x-2,y,false) && !find_soldier_grid(x-2,y,true) && !find_townhall_grid(x-2,y,true))
-				if(y>=5 && x>=1 && x<=6)
+				if(y>=Y-3 && x>=1 && x<=X-2)
 				{
 					flag = 1;
 					res-=0.5;
 				}
 			if(flag == 0 && !find_soldier_grid(x+2,y,false) && !find_townhall_grid(x+2,y,false) && !find_soldier_grid(x+2,y,true) && !find_townhall_grid(x+2,y,true))
-				if(y<=2 && x>=1 && x<=6)
+				if(y<=2 && x>=1 && x<=X-2)
 				{
 					flag = 1;
 					res-=0.5;
@@ -661,14 +658,14 @@ double game_state::mob()
 		else if(orient == 3)
 		{
 			if( !find_soldier_grid(x-2,y+2,false) && !find_townhall_grid(x-2,y+2,false) && !find_soldier_grid(x-2,y+2,true) && !find_townhall_grid(x-2,y+2,true))
-				if(x==1)
+				if(x<=X-7)
 					res-=(id)*1;
-				else if(x==2)
+				else if(x<=X-6)
 					res-= (id)*0.7;
-				else if(x<=5)
+				else if(x<=X-3)
 					res-= (id)*0.3;
 			if(!find_soldier_grid(x+2,y-2,false) && !find_townhall_grid(x+2,y-2,false) && !find_soldier_grid(x+2,y-2,true) && !find_townhall_grid(x+2,y-2,true))
-				if(x==6)
+				if(x>=6)
 					res-= (1-id)*1;
 				else if(x==5)
 					res-= (1-id)*0.7;
@@ -683,7 +680,7 @@ double game_state::mob()
 		{
 			int x = soldiers[i].getX();
 			int y = soldiers[i].getY();
-			if(x>3) temp1++; else temp2++;
+			if(x>(X/2)-1) temp1++; else temp2++;
 			if(y == Y-1) //defend cannons
 				res+= 0.4;
 			else if(y== Y-2)
@@ -696,7 +693,7 @@ double game_state::mob()
 		{
 			int x = enemy_soldiers[i].getX();
 			int y = enemy_soldiers[i].getY();
-			if(x>3) temp1--; else temp2--;
+			if(x>(X/2)-1) temp1--; else temp2--;
 			if(y == 0)//defence
 				res-= 0.4;
 			else if(y==1)
@@ -716,7 +713,7 @@ double game_state::mob()
 		{
 			int x = soldiers[i].getX();
 			int y = soldiers[i].getY();	
-			if(x>3) temp1++; else temp2++;
+			if(x>(X/2)-1) temp1++; else temp2++;
 			if(y== 0) //defence
 				res+= 0.4;
 			else if(y==1)
@@ -729,7 +726,7 @@ double game_state::mob()
 		{
 			int x = enemy_soldiers[i].getX();
 			int y = enemy_soldiers[i].getY();	
-			if(x>3) temp1--; else temp2--;
+			if(x>(X/2)-1) temp1--; else temp2--;
 			if(y == Y-1) //defence
 				res-= 0.4;
 			else if(y==Y-2)
@@ -744,12 +741,16 @@ double game_state::mob()
 	return res;
 }
 
+int townhall_scores[3][3] = {{0,2,0},
+							{8,5,3},
+							{10,7,5}};
+
 double game_state::evaluation_function()
 {
 	double res = 0;
 	double soldiers_wt = 0.02*((double)soldiers.size() - (double)enemy_soldiers.size());
 	//double cannon_wt = 0.003*((double)cannons.size() - (double)enemy_cannons.size());
-	double townhalls_wt = townhall_scores[((int)townhalls.size()-2)][((int)enemy_townhalls.size()-2)];
+	double townhalls_wt = townhall_scores[((int)townhalls.size()-((X/2)+1)/2)][((int)enemy_townhalls.size()-((X/2)+1)/2)];
 	double mobility_wt = 0.005*(mob());
 	res = soldiers_wt + townhalls_wt + mobility_wt;
 	//cerr << res << endl;
