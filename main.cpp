@@ -80,13 +80,13 @@ int main()
 			int b1 = random_player->current_state->possible_moves(true).size();
 			int b = max((int)moves.size() ,b1);
 			if(b>30)
-				depth=3;
-			else if(b>20)
-				depth=4;
-			else if(b>10)
 				depth=5;
-			else
+			else if(b>20)
 				depth=6;
+			else if(b>10)
+				depth=7;
+			else
+				depth=10;
 			// double remaining_time = random_player->remaining_time;
 			// //if(remaining_time<15)
 			// auto start = std::chrono::high_resolution_clock::now();
@@ -121,6 +121,7 @@ int main()
 			cout<< 'S'<<' '<<moves.at(ran).x1<<' '<<moves.at(ran).y1<<' '<<temp<<' '<<moves.at(ran).x2<<' '<<moves.at(ran).y2<<endl;
 			random_player->current_state->change_state(moves.at(ran).x1, moves.at(ran).y1, moves.at(ran).x2, moves.at(ran).y2, moves.at(ran).bomb, false);
 			cerr << "eval: " << random_player->current_state->evaluation_function() <<endl;
+			cerr << "depth: "<< depth << endl;
 			// double please = random_player->current_state->evaluation_function() ;
 			// double please2 =  vc.at(ran).second->evaluation_function();
 			// cerr<<"Validation: "<< please <<' '<<please2 << endl;
