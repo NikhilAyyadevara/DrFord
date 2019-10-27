@@ -90,7 +90,7 @@ int main()
 			// double remaining_time = random_player->remaining_time;
 			// //if(remaining_time<15)
 			// auto start = std::chrono::high_resolution_clock::now();
-			node* tree = random_player->tree_build(depth, false, random_player->current_state);
+			node* tree = random_player->tree_build(0, false, random_player->current_state);
 			// auto end = std::chrono::high_resolution_clock::now();
 			
 			//vector<pair<int, game_state*> > vc = random_player->current_state->possible_states(false);
