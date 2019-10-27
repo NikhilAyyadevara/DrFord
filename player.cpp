@@ -19,6 +19,7 @@ node* player::tree_build(int depth, bool enemy, game_state* state)
 		auto start = std::chrono::high_resolution_clock::now();
 		vector<pair<int, game_state*> > next_states = state->possible_states(enemy);
 		auto end = std::chrono::high_resolution_clock::now();
+		root->child = true;
 		for(int i=0;i<next_states.size();++i)
 		{
 			node* child = tree_build(depth-1, !enemy, next_states.at(i).second);
@@ -27,6 +28,20 @@ node* player::tree_build(int depth, bool enemy, game_state* state)
 		}
 		//cerr <<"possible states: "<<' '<<std::chrono::duration_cast<chrono::microseconds>(end-start).count() << endl;
 		return root;
+	}
+}
+
+void player::build_children(node* root, bool enemy)
+{
+	if(root->child)
+		return;
+	vector<pair<int, game_state*> > next_states = root->current_state->possible_states(enemy);
+	root->child = true;
+	for(int i=0;i<next_states.size();++i)
+	{
+		node* child = new node(next_states.at(i).second);
+		child->id = i;
+		root->children.push_back(child);
 	}
 }
 
@@ -60,6 +75,7 @@ double player::min_val(node* state, double alpha, double beta, int depth)
 		// state->eval_value = res;
 		return res;
 	}
+	build_children(state, true);
 	vector<node*> childr = state->children;
 	int num_child = childr.size();
 	for(int i=0; i<num_child; i++)
@@ -72,13 +88,13 @@ double player::min_val(node* state, double alpha, double beta, int depth)
 			if(beta <= alpha)
 			{
 				state->eval_value = res;
-				sort(childr.begin(), childr.begin()+i, ascending);
+				sort(state->children.begin(), state->children.begin()+i, ascending);
 				//if(res > 6) cerr << "min_prune " << depth << " " <<res << endl;
 				return res;
 			}
 		//}
 	}
-	sort(childr.begin(), childr.end(), ascending);
+	sort(state->children.begin(), state->children.end(), ascending);
 	state->eval_value = res;
 	//if(res > 6) cerr << "min " << depth << " " <<res << endl;
 	return res;
@@ -93,6 +109,7 @@ double player::max_val(node* state, double alpha, double beta, int depth)
 		res = state->eval_value;
 		return res;
 	}
+	build_children(state, false);
 	vector<node*> childr = state->children;
 	int num_child = childr.size();
 	for(int i=0; i<num_child; i++)
@@ -105,13 +122,13 @@ double player::max_val(node* state, double alpha, double beta, int depth)
 			if(beta <= alpha)
 			{
 				state->eval_value = res;
-				sort(childr.begin(), childr.begin()+i, descending);
+				sort(state->children.begin(), state->children.begin()+i, descending);
 				//if(res > 6) cerr << "max_prune " << depth << " " <<res << endl; 
 				return res;
 			}
 		//}
 	}
-	sort(childr.begin(), childr.end(), descending);
+	sort(state->children.begin(), state->children.end(), descending);
 	state->eval_value = res;
 	return res;
 }
