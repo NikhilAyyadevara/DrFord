@@ -31,10 +31,13 @@ node* player::tree_build(int depth, bool enemy, game_state* state)
 	}
 }
 
+
 void player::build_children(node* root, bool enemy)
 {
+	 //cerr << "build_children hi!" << endl;
 	if(root->child)
 		return;
+	 // cerr << "build_children let's possible_states!" << endl;
 	vector<pair<int, game_state*> > next_states = root->current_state->possible_states(enemy);
 	root->child = true;
 	for(int i=0;i<next_states.size();++i)
@@ -43,6 +46,7 @@ void player::build_children(node* root, bool enemy)
 		child->id = i;
 		root->children.push_back(child);
 	}
+	// if(depth==7) cerr << "build_children bye!" << endl;
 }
 
 
@@ -102,6 +106,7 @@ double player::min_val(node* state, double alpha, double beta, int depth)
 
 double player::max_val(node* state, double alpha, double beta, int depth)
 {
+	if(depth==7) cerr << "hi max_val!" << endl;
 	double res = -1*INFINITY;
 	if(depth == 0 || terminal(state))
 	{
@@ -109,6 +114,7 @@ double player::max_val(node* state, double alpha, double beta, int depth)
 		res = state->eval_value;
 		return res;
 	}
+	if(depth==7) cerr << "hi max_val let's build chidren!" << endl;
 	build_children(state, false);
 	vector<node*> childr = state->children;
 	int num_child = childr.size();
@@ -128,7 +134,9 @@ double player::max_val(node* state, double alpha, double beta, int depth)
 			}
 		//}
 	}
+	if(depth==7) cerr << "max_val let's sort!" << endl;
 	sort(state->children.begin(), state->children.end(), descending);
+	if(depth==7) cerr << "max_val bye!" << endl;
 	state->eval_value = res;
 	return res;
 }
@@ -138,11 +146,25 @@ int player::minimax_decision(node* state, double alpha, double beta, int depth)
 	double res = max_val(state, alpha, beta, depth);
 	vector<node*> childr = state->children;
 	int num_child = childr.size();
-	for(int i=0;i<num_child;++i)
+	int ctr=0;
+	if(depth==7) cerr << "hi!" << endl;
+	while(childr[ctr]->eval_value == res)
+		ctr++;
+	if(depth==7) cerr << "hi1!" << endl;
+	int max_index = 0;
+	double max_eval_func_val = 0.0;
+	for(int i=0;i<ctr;++i)
 	{
-		if(state->children.at(i)->eval_value == res)
-			return state->children[i]->id;
+		double temp_val = childr[i]->current_state->evaluation_function();
+		if(temp_val > max_eval_func_val)
+		{
+			max_eval_func_val = temp_val;
+			max_index = i;
+		}
+
 	}
+	if(depth==7) cerr << "bye" << endl;
+	return childr[max_index]->id;
 	//vector<pair<int, game_state*> > states = state->current_state->possible_states(false);
 	// for(int i=0;i<states.size();++i)
 	// {
@@ -150,7 +172,7 @@ int player::minimax_decision(node* state, double alpha, double beta, int depth)
 	// 	if(eval==res)
 	// 		return (states.at(i).first);
 	// }
-	return -1;
+	//return -1;
 }
 
 int player::ids_pruning(int max_depth, node* root)

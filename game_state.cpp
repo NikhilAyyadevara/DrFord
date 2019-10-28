@@ -25,6 +25,13 @@ game_state::game_state(game_state* g)
 	}
 }
 
+// game_state::game_state(vector<vector<short> > boar)
+// {
+// 	int x_temp, y_temp;
+// 	x_temp = boar.size();
+// 	y_temp = boar[0].size();
+// }
+
 game_state::game_state(int a, int x, int y)
 {
 	soldier *s, *s1;
@@ -735,24 +742,25 @@ double game_state::mob()
 			//	res-= 0.005*(6-y);
 			//res+= -0.1*(Y-enemy_soldiers[i].getY());
 		}
-		if(temp1>0) res+= 0.1*temp1;
+		if(temp1>0) res+= 0.1*(temp1);
 		if(temp2>0) res+= 0.1*(temp2);
 	}
 	return res;
 }
 
-int townhall_scores[3][3] = {{0,2,0},
-							{8,5,3},
-							{10,7,5}};
+int townhall_scores[3][3] = {{0,20,0},
+							{80,50,30},
+							{100,70,50}};
 
 double game_state::evaluation_function()
 {
 	double res = 0;
-	double soldiers_wt = 0.02*((double)soldiers.size() - (double)enemy_soldiers.size());
+					// double soldiers_wt = 0.02*((double)soldiers.size() - (double)enemy_soldiers.size());
+	double soldiers_wt = 1*((double)soldiers.size() - (double)enemy_soldiers.size());
 	//double cannon_wt = 0.003*((double)cannons.size() - (double)enemy_cannons.size());
 	double townhalls_wt = townhall_scores[((int)townhalls.size()-((X/2)+1)/2)][((int)enemy_townhalls.size()-((X/2)+1)/2)];
 	double mobility_wt = 0.005*(mob());
-	if(((int)townhalls.size()-((X/2)+1)/2)==0 || ((int)enemy_townhalls.size()-((X/2)+1)/2)==0)
+	if(((int)enemy_townhalls.size()-((X/2)+1)/2)==0)
 		mobility_wt = 10;
 	res = soldiers_wt + townhalls_wt + mobility_wt;
 	//cerr << res << endl;
