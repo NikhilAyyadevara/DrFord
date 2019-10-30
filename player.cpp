@@ -57,6 +57,8 @@ bool ascending(node* node1, node* node2)
 
 bool descending(node* node1, node* node2)
 {
+	if(node1->eval_value == node2->eval_value)
+		return node1->current_state->evaluation_function() > node2->current_state->evaluation_function();
 	return (node1->eval_value > node2->eval_value);
 }
 
@@ -106,7 +108,7 @@ double player::min_val(node* state, double alpha, double beta, int depth)
 
 double player::max_val(node* state, double alpha, double beta, int depth)
 {
-	if(depth==7) cerr << "hi max_val!" << endl;
+	// if(depth==7) cerr << "hi max_val!" << endl;
 	double res = -1*INFINITY;
 	if(depth == 0 || terminal(state))
 	{
@@ -114,7 +116,7 @@ double player::max_val(node* state, double alpha, double beta, int depth)
 		res = state->eval_value;
 		return res;
 	}
-	if(depth==7) cerr << "hi max_val let's build chidren!" << endl;
+	// if(depth==7) cerr << "hi max_val let's build chidren!" << endl;
 	build_children(state, false);
 	vector<node*> childr = state->children;
 	int num_child = childr.size();
@@ -134,9 +136,9 @@ double player::max_val(node* state, double alpha, double beta, int depth)
 			}
 		//}
 	}
-	if(depth==7) cerr << "max_val let's sort!" << endl;
+	// if(depth==7) cerr << "max_val let's sort!" << endl;
 	sort(state->children.begin(), state->children.end(), descending);
-	if(depth==7) cerr << "max_val bye!" << endl;
+	// if(depth==7) cerr << "max_val bye!" << endl;
 	state->eval_value = res;
 	return res;
 }
@@ -145,34 +147,34 @@ int player::minimax_decision(node* state, double alpha, double beta, int depth)
 {
 	double res = max_val(state, alpha, beta, depth);
 	vector<node*> childr = state->children;
-	int num_child = childr.size();
-	int ctr=0;
-	if(depth==7) cerr << "hi!" << endl;
-	while(childr[ctr]->eval_value == res)
-		ctr++;
-	if(depth==7) cerr << "hi1!" << endl;
-	int max_index = 0;
-	double max_eval_func_val = 0.0;
-	for(int i=0;i<ctr;++i)
-	{
-		double temp_val = childr[i]->current_state->evaluation_function();
-		if(temp_val > max_eval_func_val)
-		{
-			max_eval_func_val = temp_val;
-			max_index = i;
-		}
-
-	}
-	if(depth==7) cerr << "bye" << endl;
-	return childr[max_index]->id;
-	//vector<pair<int, game_state*> > states = state->current_state->possible_states(false);
-	// for(int i=0;i<states.size();++i)
+	if(childr.size()==0)
+		return -1;
+	// int num_child = childr.size();
+	// int ctr=0;
+	// if(depth==7) cerr << "hi! " << childr.size()<<  endl;
+	// for(;ctr<childr.size();++ctr)
 	// {
-	// 	double eval = states.at(i).second->evaluation_function();
-	// 	if(eval==res)
-	// 		return (states.at(i).first);
+	// 	if(childr[ctr]->eval_value != res)
+	// 	{
+	// 		break;
+	// 	}
 	// }
-	//return -1;
+	// if(depth==7) cerr << "hi1!" << endl;
+	// int max_index = 0;
+	// double max_eval_func_val = 0.0;
+	// for(int i=0;i<=ctr;++i)
+	// {
+	// 	double temp_val = childr[i]->current_state->evaluation_function();
+	// 	if(temp_val > max_eval_func_val)
+	// 	{
+	// 		max_eval_func_val = temp_val;
+	// 		max_index = i;
+	// 	}
+
+	// }
+	// if(depth==7) cerr << "bye" << endl;
+	// return childr[max_index]->id;
+	return childr[0]->id;
 }
 
 int player::ids_pruning(int max_depth, node* root)
@@ -182,8 +184,7 @@ int player::ids_pruning(int max_depth, node* root)
 	double beta = INFINITY;
 	for(int i=1; i< max_depth; i++)
 	{
-		minimax_decision(root, alpha, beta, i);
-		
+		minimax_decision(root, alpha, beta, i);	
 	}
 	res = minimax_decision(root, alpha, beta, max_depth);
 	

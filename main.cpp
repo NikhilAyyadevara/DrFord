@@ -15,6 +15,7 @@ int main()
 	double time_left;
 	cin>>time_left;
 	srand(time(0));
+	map<vector<vector<int> >, int> m;
 
 	cerr << x_dim << " " << y_dim << "\n";
 
@@ -93,19 +94,16 @@ int main()
 			else if(b>10)
 				depth=7;
 			else
-				depth=10;
+				depth=8;
 			// double remaining_time = random_player->remaining_time;
 			// auto start = std::chrono::high_resolution_clock::now();
 			cerr << "depth: "<< depth << "\n";
+			cerr << "branching factor: " << b << "\n";
 			node* tree = random_player->tree_build(0, false, random_player->current_state);
-			if(depth==7)
-				cerr << "tree build done" << "\n";
 			// auto end = std::chrono::high_resolution_clock::now();
 			
 			int ran = random_player->ids_pruning(depth, tree);
 
-			if(depth==7)
-				cerr << "ids_pruning done" << "\n";
 
 			char temp;
 			// testing begin
@@ -141,10 +139,7 @@ int main()
 			//cerr<< std::chrono::duration_cast<chrono::milliseconds>(end-start).count() << "\n";
 			cout<< 'S'<<' '<<moves.at(ran).x1<<' '<<moves.at(ran).y1<<' '<<temp<<' '<<moves.at(ran).x2<<' '<<moves.at(ran).y2<<"\n";
 			random_player->current_state->change_state(moves.at(ran).x1, moves.at(ran).y1, moves.at(ran).x2, moves.at(ran).y2, moves.at(ran).bomb, false);
-			if(depth==7)
-				cerr << "change_state done" << "\n";
 			cerr << "eval: " << tree->eval_value <<"\n";
-			cerr << "branching factor: " << b << "\n";
 			delete tree;
 		}
 		//opponents move

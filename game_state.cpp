@@ -762,6 +762,7 @@ double game_state::evaluation_function()
 	double mobility_wt = 0.005*(mob());
 	if(((int)enemy_townhalls.size()-((X/2)+1)/2)==0)
 		mobility_wt = 10;
+
 	res = soldiers_wt + townhalls_wt + mobility_wt;
 	//cerr << res << endl;
 	return res;
