@@ -535,20 +535,51 @@ double game_state::mob()
 		{
 			if(!find_soldier_grid(x,y-2,true) && !find_townhall_grid(x,y-2,true) && !find_soldier_grid(x,y-2,false) && !find_townhall_grid(x,y-2,false))
 			{
+				// if(y<=4)
+				// 	res+= (1-id)*1;
+				// else if(y==5)
+				// 	res+= (1-id)*0.70;
+				// else if(y>= 6)
+				// 	res+= (1-id)*0.3;
+				//incresed wt in cannon is in townhalls column
 				if(y<=4)
+				{
 					res+= (1-id)*1;
+					if(x%2==0)
+						res+=(1-id)*0.1;
+				}
 				else if(y==5)
+				{
 					res+= (1-id)*0.70;
+					if(x%2==0)
+						res+=(1-id)*0.1;
+				}
 				else if(y>= 6)
+				{
 					res+= (1-id)*0.3;
+					// if(x%2==0)
+					// 	res+=(1-id)*0.1;
+				}
 			}
 			if( !find_soldier_grid(x,y+2,true) && !find_townhall_grid(x,y+2,true) && !find_soldier_grid(x,y+2,false) && !find_townhall_grid(x,y+2,false))
 				if(y>=Y-5)
+				{
 					res+= id*1;
+					if(x%2==1)
+						res+=(id)*0.1;
+				}
 				else if(y==Y-6)
+				{
 					res+= id*0.7;
+					if(x%2==1)
+						res+=(id)*0.1;
+				}
 				else if(y<=Y-7)
+				{
 					res+= id*0.3;
+					// if(x%2==1)
+					// 	res+=(id)*0.1;
+				}
 				//res+= id*0.5;
 		}
 		else if(orient == 1)
@@ -614,20 +645,51 @@ double game_state::mob()
 		{
 			if(!find_soldier_grid(x,y-2,false) && !find_townhall_grid(x,y-2,false) && !find_soldier_grid(x,y-2,true) && !find_townhall_grid(x,y-2,true))
 			{
+				// if(y<=4)
+				// 	res-= (id)*1;
+				// else if(y==5)
+				// 	res-= (id)*0.70;
+				// else if(y>= 6)
+				// 	res-= (id)*0.3;
+
 				if(y<=4)
+				{
 					res-= (id)*1;
+					if(x%2==0)
+						res-=id*0.1;
+				}
 				else if(y==5)
+				{
 					res-= (id)*0.70;
+					if(x%2==0)
+						res-=id*0.1;
+				}
 				else if(y>= 6)
+				{
 					res-= (id)*0.3;
+					// if(x%2==0)
+					// 	res-=id*0.1;
+				}
 			}
 			if( !find_soldier_grid(x,y+2,false) && !find_townhall_grid(x,y+2,false) && !find_soldier_grid(x,y+2,true) && !find_townhall_grid(x,y+2,true))
 				if(y>=Y-5)
+				{
 					res-= (1-id)*1;
+					if(x%2==1)
+						res-=(1-id)*0.1;
+				}
 				else if(y==Y-6)
+				{
 					res-= (1-id)*0.7;
+					if(x%2==1)
+						res-=(1-id)*0.1;
+				}
 				else if(y==Y-7)
+				{
 					res-= (1-id)*0.3;
+					// if(x%2==1)
+					// 	res-=(1-id)*0.1;
+				}
 		}
 		else if(orient == 1)
 		{
