@@ -562,6 +562,7 @@ double game_state::mob()
 				}
 			}
 			if( !find_soldier_grid(x,y+2,true) && !find_townhall_grid(x,y+2,true) && !find_soldier_grid(x,y+2,false) && !find_townhall_grid(x,y+2,false))
+			{
 				if(y>=Y-5)
 				{
 					res+= id*1;
@@ -581,57 +582,69 @@ double game_state::mob()
 					// 	res+=(id)*0.1;
 				}
 				//res+= id*0.5;
+			}
 		}
 		else if(orient == 1)
 		{
 			if(!find_soldier_grid(x-2,y-2,true) && !find_townhall_grid(x-2,y-2,true) && !find_soldier_grid(x-2,y-2,false) && !find_townhall_grid(x-2,y-2,false))
+			{
 				if(x>=6)
 					res+= (1-id)*1;
 				else if(x==5)
 					res+= (1-id)*0.7;
 				else if(x>=3)
 					res+= (1-id)*0.3;
+			}
 				//res+=0.5;
 			if(!find_soldier_grid(x+2,y+2,true) && !find_townhall_grid(x+2,y+2,true) && !find_soldier_grid(x+2,y+2,false) && !find_townhall_grid(x+2,y+2,false))
+			{
 				if(x<=X-7)
 					res+= id*1;
 				else if(x<=X-6)
 					res+= id*0.7;
 				else if(x<=X-3)
 					res+= id*0.3;
+			}
 		}
 		else if(orient == 2)
 		{
 			if(flag == 0 &&  !find_soldier_grid(x-2,y,true) && !find_townhall_grid(x-2,y,true) && !find_soldier_grid(x-2,y,false) && !find_townhall_grid(x-2,y,false))
+			{
 				if(y>=Y-3 && x>=1 && x<=X-2)
 				{
 					res+=0.5;
 					flag = 1;
 				}
+			}
 			if(flag == 0 && !find_soldier_grid(x+2,y,true) && !find_townhall_grid(x+2,y,true) && !find_soldier_grid(x+2,y,false) && !find_townhall_grid(x+2,y,false))
+			{
 				if(y<=2 && x>=1 && x<=X-2)
 				{
 					res+=0.5;
 					flag =1;
 				}	
-			
+			}
 		}
 		else if(orient == 3)
 		{
 			if( !find_soldier_grid(x-2,y+2,true) && !find_townhall_grid(x-2,y+2,true) && !find_soldier_grid(x-2,y+2,false) && !find_townhall_grid(x-2,y+2,false))
+			{
 				if(x==1)
 					res+=(1-id)*1;
 				else if(x==2)
 					res+= (1-id)*0.7;
 				else if(x<=X-3)
 					res+= (1-id)*0.3;
+			}
 			if(!find_soldier_grid(x+2,y-2,true) && !find_townhall_grid(x+2,y-2,true) && !find_soldier_grid(x+2,y-2,false) && !find_townhall_grid(x+2,y-2,false))
+			{
 				if(x>=6)
 					res+= (id)*1;
 				else if(x==5)
 					res+= (id)*0.7;
 				else if(x>=3)
 					res+= (id)*0.3;
+			}
 		}
 	}
 	flag = 0;
@@ -672,6 +685,7 @@ double game_state::mob()
 				}
 			}
 			if( !find_soldier_grid(x,y+2,false) && !find_townhall_grid(x,y+2,false) && !find_soldier_grid(x,y+2,true) && !find_townhall_grid(x,y+2,true))
+			{
 				if(y>=Y-5)
 				{
 					res-= (1-id)*1;
@@ -690,56 +704,69 @@ double game_state::mob()
 					// if(x%2==1)
 					// 	res-=(1-id)*0.1;
 				}
+			}
 		}
 		else if(orient == 1)
 		{
 			if(!find_soldier_grid(x-2,y-2,false) && !find_townhall_grid(x-2,y-2,false) && !find_soldier_grid(x-2,y-2,true) && !find_townhall_grid(x-2,y-2,true))
+			{
 				if(x>=6)
 					res-= (id)*1;
 				else if(x==5)
 					res-= (id)*0.7;
 				else if(x>=3)
 					res-= (id)*0.3;
+			}
 				//res-=0.5;
 			if(!find_soldier_grid(x+2,y+2,false) && !find_townhall_grid(x+2,y+2,false) && !find_soldier_grid(x+2,y+2,true) && !find_townhall_grid(x+2,y+2,true))
+			{
 				if(x<=X-7)
 					res-= (1-id)*1;
 				else if(x<=X-6)
 					res-= (1-id)*0.7;
 				else if(x<=X-3)
 					res-= (1-id)*0.3;
+			}
 		}
 		else if(orient == 2)
 		{
 			if(flag == 0 && !find_soldier_grid(x-2,y,false) && !find_townhall_grid(x-2,y,false) && !find_soldier_grid(x-2,y,true) && !find_townhall_grid(x-2,y,true))
+			{
 				if(y>=Y-3 && x>=1 && x<=X-2)
 				{
 					flag = 1;
 					res-=0.5;
 				}
+			}
 			if(flag == 0 && !find_soldier_grid(x+2,y,false) && !find_townhall_grid(x+2,y,false) && !find_soldier_grid(x+2,y,true) && !find_townhall_grid(x+2,y,true))
+			{
 				if(y<=2 && x>=1 && x<=X-2)
 				{
 					flag = 1;
 					res-=0.5;
 				}
+			}
 		}
 		else if(orient == 3)
 		{
 			if( !find_soldier_grid(x-2,y+2,false) && !find_townhall_grid(x-2,y+2,false) && !find_soldier_grid(x-2,y+2,true) && !find_townhall_grid(x-2,y+2,true))
+			{
 				if(x<=X-7)
 					res-=(id)*1;
 				else if(x<=X-6)
 					res-= (id)*0.7;
 				else if(x<=X-3)
 					res-= (id)*0.3;
+			}
 			if(!find_soldier_grid(x+2,y-2,false) && !find_townhall_grid(x+2,y-2,false) && !find_soldier_grid(x+2,y-2,true) && !find_townhall_grid(x+2,y-2,true))
+			{
 				if(x>=6)
 					res-= (1-id)*1;
 				else if(x==5)
 					res-= (1-id)*0.7;
 				else if(x>=3)
 					res-= (1-id)*0.3;
+			}
 		}
 	}
 	if(id == 0)
