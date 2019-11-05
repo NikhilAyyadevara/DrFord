@@ -6,6 +6,7 @@ class node
 {
 	public:
 		double eval_value;
+		double eval_func;
 		int id;
 		bool child;
 		game_state* current_state;

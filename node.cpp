@@ -6,6 +6,7 @@ node::node(game_state* g)
 {
 	current_state = g;
 	eval_value = g->evaluation_function();
+	eval_func = eval_value;
 	id=0;
 	child = false;
 }
