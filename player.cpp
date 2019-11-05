@@ -52,13 +52,15 @@ void player::build_children(node* root, bool enemy)
 
 bool ascending(node* node1, node* node2)
 {
+	if(node1->eval_value == node2->eval_value)
+		return node1->eval_func < node2->eval_func;
 	return (node1->eval_value < node2->eval_value);
 }
 
 bool descending(node* node1, node* node2)
 {
 	if(node1->eval_value == node2->eval_value)
-		return node1->current_state->evaluation_function() > node2->current_state->evaluation_function();
+		return node1->eval_func > node2->eval_func;
 	return (node1->eval_value > node2->eval_value);
 }
 
@@ -177,16 +179,38 @@ int player::minimax_decision(node* state, double alpha, double beta, int depth)
 	return childr[0]->id;
 }
 
+// node* player::get_child(node* root, int path, int depth)
+// {
+// 	if(depth == 0)
+// 		return root;
+// 	else
+// 	{
+// 		return get_child(root->children.at(path), 0, depth-1);
+// 	}
+// }
+
 int player::ids_pruning(int max_depth, node* root)
 {
+	auto start = std::chrono::high_resolution_clock::now();
 	int res;
 	double alpha = -1*INFINITY;
 	double beta = INFINITY;
+	int count = 1;
 	for(int i=1; i< max_depth; i++)
 	{
 		minimax_decision(root, alpha, beta, i);	
 	}
 	res = minimax_decision(root, alpha, beta, max_depth);
+	// while(count<=max_depth)
+	// {
+	// 	res = minimax_decision(root, alpha, beta, count);
+
+	// 	if(count==max_depth)
+	// 	{
+	// 		node* best = get_child(root, 0, max_depth);
+
+	// 	}
+	// }
 	
 	return res;
 }
