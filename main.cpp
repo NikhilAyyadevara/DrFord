@@ -53,14 +53,14 @@ int main()
 
 			if(rand()%2 == 0)
 			{
-				cout << "S 2 7 M 1 6" << "\n";
-				random_player->current_state->change_state(2,7,1,6,0,false);
+				cout << "S "<<2<<" " <<y_dim-1<<" M "<< 1<<" "<< y_dim-2 << "\n";
+				random_player->current_state->change_state(2,(y_dim-1),1,(y_dim-2),0,false);
 			}
 
 			else
 			{
-				cout << "S 2 7 M 3 6" << "\n";
-				random_player->current_state->change_state(2,7,3,6,0,false);
+				cout << "S "<<4<<" " <<y_dim-1<<" M "<< 5<<" "<< y_dim-2 << "\n";
+				random_player->current_state->change_state(4,(y_dim-1),5,(y_dim-2),0,false);
 			}
 			
 			// else if(id==1)
@@ -83,11 +83,19 @@ int main()
 		else
 		{
 			vector<Move> moves = random_player->current_state->possible_moves(false);
+			int lavda = random_player->current_state->possible_states(false).size();
+			if(moves.size()!=lavda)
+			{
+				cerr << "dengindhi po" <<"\n";
+				return 0;
+			}
 			int b1 = random_player->current_state->possible_moves(true).size();
 			int b = ((int)moves.size()+b1)/2;
-			if(b>30)
+			if(b>39)
+				depth=4;
+			else if(b>30)
 				depth=5;
-			else if(b>24)
+			else if(b>22)
 				depth=5;
 			else if(b>15)
 				depth=6;
