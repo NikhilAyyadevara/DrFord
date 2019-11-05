@@ -855,8 +855,8 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 	int y_dim = this->Y;
 	if(!enemy)
 	{
-		vector<soldier> soldiers = this->soldiers;
-		vector<pair<soldier, int> > cannons = this->cannons;
+		// vector<soldier> soldiers = this->soldiers;
+		// vector<pair<soldier, int> > cannons = this->cannons;
 		int id = this->id;
 		//Soldier moves
 		for(int i=0;i<soldiers.size();++i)
@@ -1042,14 +1042,14 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 				g->change_state(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0,enemy);
 				moves.push_back(make_pair(moves.size(),g));
 				// cannon bombs
-				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && board[x+3*x_par][y+3*y_par]<=0)
+				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && board[x+3*x_par][y+3*y_par]<0)
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x+3*x_par,y+3*y_par,1,enemy);
 					moves.push_back(make_pair(moves.size(),g));
 				}
-				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && board[x+4*x_par][y+4*y_par]<=0)
+				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && board[x+4*x_par][y+4*y_par]<0)
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
@@ -1064,14 +1064,14 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 				g->change_state(x+x_par,y+y_par,x_temp_2,y_temp_2 ,0,enemy);
 				moves.push_back(make_pair(moves.size(),g));
 				// cannon bombs
-				if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && board[x-3*x_par][y-3*y_par]<=0)
+				if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && board[x-3*x_par][y-3*y_par]<0)
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x-3*x_par,y-3*y_par,1,enemy);
 					moves.push_back(make_pair(moves.size(),g));
 				}
-				if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && y_dim && board[x-4*x_par][y-4*y_par]<=0)
+				if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && y_dim && board[x-4*x_par][y-4*y_par]<0)
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
@@ -1084,14 +1084,14 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 	}
 	else
 	{
-		vector<soldier> soldiers = this->enemy_soldiers;
-		vector<pair<soldier, int> > cannons = this->enemy_cannons;
+		// vector<soldier> soldiers = this->enemy_soldiers;
+		// vector<pair<soldier, int> > cannons = this->enemy_cannons;
 		int id = this->id;
 		//Soldier moves
-		for(int i=0;i<soldiers.size();++i)
+		for(int i=0;i<enemy_soldiers.size();++i)
 		{
-			int x = soldiers.at(i).getX();
-			int y = soldiers.at(i).getY();
+			int x = enemy_soldiers.at(i).getX();
+			int y = enemy_soldiers.at(i).getY();
 			if(id==0)//enemy is white
 			{
 				//forward soldier
@@ -1233,9 +1233,9 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 		}
 
 		///Cannon
-		for(int i=0; i<cannons.size(); i++)
+		for(int i=0; i<enemy_cannons.size(); i++)
 		{
-			int orientation = cannons.at(i).second;
+			int orientation = enemy_cannons.at(i).second;
 			int x_par,y_par;
 			if(orientation == 0)
 			{
@@ -1257,8 +1257,8 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 				x_par = -1;
 				y_par = 1;
 			}
-			int x = cannons.at(i).first.getX();
-			int y = cannons.at(i).first.getY();
+			int x = enemy_cannons.at(i).first.getX();
+			int y = enemy_cannons.at(i).first.getY();
 			// cannon moves
 			int x_temp_1 = x + 2*x_par;
 			int y_temp_1 = y + 2*y_par;
@@ -1324,8 +1324,8 @@ vector<Move> game_state::possible_moves(bool enemy)
 	int y_dim = this->Y;
 	if(!enemy)
 	{
-		vector<soldier> soldiers = this->soldiers;
-		vector<pair<soldier, int> > cannons = this->cannons;
+		// vector<soldier> soldiers = this->soldiers;
+		// vector<pair<soldier, int> > cannons = this->cannons;
 		int id = this->id;
 		//Soldier moves
 		for(int i=0;i<soldiers.size();++i)
@@ -1495,15 +1495,17 @@ vector<Move> game_state::possible_moves(bool enemy)
 				moves.push_back(Move(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0));
 
 				// cannon bombs
-				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && this->find_soldier(x+3*x_par, y+3*y_par, false) == -1 &&
-				 this->find_townhall(x+3*x_par, y+3*y_par, false) == -1 )
+				// if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && this->find_soldier(x+3*x_par, y+3*y_par, false) == -1 &&
+				//  this->find_townhall(x+3*x_par, y+3*y_par, false) == -1 )
+				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && board[x+3*x_par][y+3*y_par]<0)
 				{
 
 					moves.push_back(Move(x,y,x+3*x_par,y+3*y_par,1));
 
 				}
-				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && this->find_soldier(x+4*x_par, y+4*y_par, false) == -1 &&
-				 this->find_townhall(x+4*x_par, y+4*y_par, false) == -1)
+				// if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && this->find_soldier(x+4*x_par, y+4*y_par, false) == -1 &&
+				//  this->find_townhall(x+4*x_par, y+4*y_par, false) == -1)
+				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && board[x+4*x_par][y+4*y_par]<0)
 				{
 
 					moves.push_back(Move(x,y,x+4*x_par,y+4*y_par,1));
@@ -1517,15 +1519,17 @@ vector<Move> game_state::possible_moves(bool enemy)
 				moves.push_back(Move(x+x_par,y+y_par,x_temp_2,y_temp_2 ,0));
 
 				// cannon bombs
-				if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && this->find_soldier(x-3*x_par, y-3*y_par, false) == -1 &&
-				 this->find_townhall(x-3*x_par, y-3*y_par, false) == -1)
+				// if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && this->find_soldier(x-3*x_par, y-3*y_par, false) == -1 &&
+				//  this->find_townhall(x-3*x_par, y-3*y_par, false) == -1)
+				if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && board[x-3*x_par][y-3*y_par]<0)
 				{
 
 					moves.push_back(Move(x,y,x-3*x_par,y-3*y_par,1));
 
 				}
-				if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && this->find_soldier(x-4*x_par, y-4*y_par, false) == -1 &&
-				 this->find_townhall(x-4*x_par, y-4*y_par, false) == -1)
+				// if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && this->find_soldier(x-4*x_par, y-4*y_par, false) == -1 &&
+				//  this->find_townhall(x-4*x_par, y-4*y_par, false) == -1)
+				if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && y_dim && board[x-4*x_par][y-4*y_par]<0)
 				{
 
 					moves.push_back(Move(x,y,x-4*x_par,y-4*y_par,1));
@@ -1536,14 +1540,14 @@ vector<Move> game_state::possible_moves(bool enemy)
 	}
 	else
 	{
-		vector<soldier> soldiers = this->enemy_soldiers;
-		vector<pair<soldier, int> > cannons = this->enemy_cannons;
+		// vector<soldier> soldiers = this->enemy_soldiers;
+		// vector<pair<soldier, int> > cannons = this->enemy_cannons;
 		int id = this->id;
 		//Soldier moves
-		for(int i=0;i<soldiers.size();++i)
+		for(int i=0;i<enemy_soldiers.size();++i)
 		{
-			int x = soldiers.at(i).getX();
-			int y = soldiers.at(i).getY();
+			int x = enemy_soldiers.at(i).getX();
+			int y = enemy_soldiers.at(i).getY();
 			if(id==0)//enemy is white
 			{
 				//forward soldier
@@ -1670,9 +1674,9 @@ vector<Move> game_state::possible_moves(bool enemy)
 		}
 
 		///Cannon
-		for(int i=0; i<cannons.size(); i++)
+		for(int i=0; i<enemy_cannons.size(); i++)
 		{
-			int orientation = cannons.at(i).second;
+			int orientation = enemy_cannons.at(i).second;
 			int x_par,y_par;
 			if(orientation == 0)
 			{
@@ -1694,8 +1698,8 @@ vector<Move> game_state::possible_moves(bool enemy)
 				x_par = -1;
 				y_par = 1;
 			}
-			int x = cannons.at(i).first.getX();
-			int y = cannons.at(i).first.getY();
+			int x = enemy_cannons.at(i).first.getX();
+			int y = enemy_cannons.at(i).first.getY();
 			// cannon moves
 			int x_temp_1 = x + 2*x_par;
 			int y_temp_1 = y + 2*y_par;
