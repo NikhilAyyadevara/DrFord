@@ -114,11 +114,11 @@ int main()
 			int ran;
 			if(count!=17)
 			{
-				ran = random_player->ids_pruning(depth, tree);
+				ran = random_player->ids_pruning(depth, tree, 0);
 			}
 			else
 			{
-				ran = random_player->ids_pruning(depth, tree);
+				ran = random_player->ids_pruning(depth, tree, 0);
 				//ran = tree->children[16]->id;
 			}
 
