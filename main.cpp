@@ -50,7 +50,6 @@ int main()
 		//our move
 		if(count==0 && id==0)
 		{
-
 			if(rand()%2 == 0)
 			{
 				cout << "S "<<2<<" " <<y_dim-1<<" M "<< 1<<" "<< y_dim-2 << "\n";
@@ -62,7 +61,7 @@ int main()
 				cout << "S "<<4<<" " <<y_dim-1<<" M "<< 5<<" "<< y_dim-2 << "\n";
 				random_player->current_state->change_state(4,(y_dim-1),5,(y_dim-2),0,false);
 			}
-			
+
 			// else if(id==1)
 			// {
 			// 	if(rand()%2 == 0)
@@ -76,16 +75,19 @@ int main()
 			// 		random_player->current_state->change_state(5,0,4,1,0,false);
 			// 	}
 			// }
-			
+
 			// cerr << "Random move" << "\n";
-			
+
 		}
 		else
 		{
 			vector<Move> moves = random_player->current_state->possible_moves(false);
 			int lavda = random_player->current_state->possible_states(false).size();
-			if(moves.size()!=lavda)
+			int l1= random_player->current_state->possible_moves(true).size();
+			int l2 = random_player->current_state->possible_states(true).size();
+			if(moves.size()!=lavda || l1!=l2)
 			{
+				cerr << l1 << " " << l2<<endl;
 				cerr << "dengindhi po" <<"\n";
 				return 0;
 			}
@@ -93,24 +95,44 @@ int main()
 			int b = ((int)moves.size()+b1)/2;
 			if(b>39)
 				depth=4;
-			else if(b>30)
+			else if(b>29)
 				depth=5;
 			else if(b>22)
 				depth=5;
-			else if(b>15)
+			else if(b>13)
 				depth=6;
 			else if(b>10)
 				depth=7;
 			else
-				depth=8;
+				depth=7;
 			// double remaining_time = random_player->remaining_time;
 			// auto start = std::chrono::high_resolution_clock::now();
 			cerr << "depth: "<< depth << "\n";
 			cerr << "branching factor: " << b << "\n";
 			node* tree = random_player->tree_build(0, false, random_player->current_state);
 			// auto end = std::chrono::high_resolution_clock::now();
-			
-			int ran = random_player->ids_pruning(depth, tree);
+			int ran;
+			if(count!=17)
+			{
+				ran = random_player->ids_pruning(depth, tree);
+			}
+			else
+			{
+				ran = random_player->ids_pruning(depth, tree);
+				//ran = tree->children[16]->id;
+			}
+
+			//debug starts
+			//if(count >=13)
+			{
+				int t_size = tree->children.size();
+				for(int i=0; i<t_size; i++)
+				{
+					int ind = tree->children[i]->id;
+					cerr << ind<<" "<<moves[ind].x1<<" "<<moves[ind].y1<<" to "<<moves[ind].x2<<" "<<moves[ind].y2<<"-------eval_value---"<<tree->children[i]->eval_value<<endl;
+					//cerr << "eval_func-"<<i<<" "<<tree->children[i]->eval_func<<endl;
+				}
+			}//debug ends
 
 
 			char temp;
@@ -137,13 +159,13 @@ int main()
 			// 	cerr << "eval_value: " << vc.at(i).second->evaluation_function() << "\n";
 			// }
 			// testing end
-			
+
 
 			if(moves.at(ran).bomb)
 				temp='B';
 			else
 				temp = 'M';
-			
+
 			//cerr<< std::chrono::duration_cast<chrono::milliseconds>(end-start).count() << "\n";
 			cout<< 'S'<<' '<<moves.at(ran).x1<<' '<<moves.at(ran).y1<<' '<<temp<<' '<<moves.at(ran).x2<<' '<<moves.at(ran).y2<<"\n";
 			random_player->current_state->change_state(moves.at(ran).x1, moves.at(ran).y1, moves.at(ran).x2, moves.at(ran).y2, moves.at(ran).bomb, false);
