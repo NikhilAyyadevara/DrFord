@@ -10,11 +10,11 @@ node* player::tree_build(int depth, bool enemy, game_state* state)
 {
 	if(depth==0)
 	{
-		return new node(state);
+		return new node(state, enemy);
 	}
 	else
 	{
-		node* root = new node(state);
+		node* root = new node(state, enemy);
 		// if(root->eval_value > 6) cerr<<"eval_value: "<<depth<<' '<<root->eval_value<<endl;
 		auto start = std::chrono::high_resolution_clock::now();
 		vector<pair<int, game_state*> > next_states = state->possible_states(enemy);
@@ -42,7 +42,7 @@ void player::build_children(node* root, bool enemy)
 	root->child = true;
 	for(int i=0;i<next_states.size();++i)
 	{
-		node* child = new node(next_states.at(i).second);
+		node* child = new node(next_states.at(i).second, enemy);
 		child->id = i;
 		root->children.push_back(child);
 	}
@@ -133,7 +133,7 @@ double player::max_val(node* state, double alpha, double beta, int depth)
 			{
 				state->eval_value = res;
 				sort(state->children.begin(), state->children.begin()+i, descending);
-				//if(res > 6) cerr << "max_prune " << depth << " " <<res << endl; 
+				//if(res > 6) cerr << "max_prune " << depth << " " <<res << endl;
 				return res;
 			}
 		//}
@@ -198,7 +198,7 @@ int player::ids_pruning(int max_depth, node* root)
 	int count = 1;
 	for(int i=1; i< max_depth; i++)
 	{
-		minimax_decision(root, alpha, beta, i);	
+		minimax_decision(root, alpha, beta, i);
 	}
 	res = minimax_decision(root, alpha, beta, max_depth);
 	// while(count<=max_depth)
@@ -211,7 +211,7 @@ int player::ids_pruning(int max_depth, node* root)
 
 	// 	}
 	// }
-	
+
 	return res;
 }
 
