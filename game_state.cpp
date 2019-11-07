@@ -521,7 +521,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 
 
 //mobility
-double game_state::mob()
+double game_state::mob(bool enemy)
 {
 	double res = 0;
 	int flag = 0;
@@ -622,7 +622,7 @@ double game_state::mob()
 				{
 					res+=0.5;
 					flag =1;
-				}	
+				}
 			}
 		}
 		else if(orient == 3)
@@ -781,10 +781,23 @@ double game_state::mob()
 				res+= 0.4;
 			else if(y== Y-2)
 				res+=0.05;
-			//else// attack enemy_cannons
-				//res+= 0.005*(6-y);
-			//res+=0.1*(Y-soldiers[i].getY());
-		}		
+			//else
+			// attack enemy_cannons
+			res+= 0.005*(8-y);
+			if(enemy) //can modify this!
+			{
+				if(find_soldier_grid(x,y-1,true) || find_soldier_grid(x+1,y-1,true) || find_soldier_grid(x-1,y-1,true)
+				|| find_soldier_grid(x-1,y,true) || find_soldier_grid(x+1,y,true))
+				{
+					//res -= 0.1;
+				}
+			}
+			// else
+			// {
+			// 	res+= 0.005*(8-y);
+			// //res+=0.1*(Y-soldiers[i].getY());
+			// }
+		}
 		for(int i=0; i<enemy_soldiers.size(); i++)
 		{
 			int x = enemy_soldiers[i].getX();
@@ -794,42 +807,81 @@ double game_state::mob()
 				res-= 0.4;
 			else if(y==1)
 				res-=0.05;
-			//else //attack
-				//res-= 0.005*(y-1);
-			//res+= -0.1*(1+enemy_soldiers[i].getY());
+			//else
+			//attack
+			res-= 0.005*(y+1);
+			if(!enemy)
+			{
+				if(find_soldier_grid(x-1,y,false) || find_soldier_grid(x+1,y,false) || find_soldier_grid(x,y+1,false)
+			 	|| find_soldier_grid(x-1,y+1,false) || find_soldier_grid(x+1,y+1,false))
+				{
+					//res += 0.03;
+				}
+			}
+			// else
+			// {
+			// 	res-= 0.005*(y+1);
+			// 	//res+= -0.1*(1+enemy_soldiers[i].getY());
+			// }
 		}
 		if(temp1>0) res+= 0.1*temp1;
 		if(temp2>0) res+= 0.1*(temp2);
 
 	}
 	else if(id == 1)
-	{	
+	{
 		int temp1=0,temp2=0;
 		for(int i=0; i<soldiers.size(); i++)
 		{
 			int x = soldiers[i].getX();
-			int y = soldiers[i].getY();	
+			int y = soldiers[i].getY();
 			if(x>(X/2)-1) temp1++; else temp2++;
 			if(y== 0) //defence
 				res+= 0.4;
 			else if(y==1)
 				res+= 0.05;
-			//else //attack
-			//	res+= 0.005*(y-1);
-			//res+=0.1*(1+soldiers[i].getY());
+			//else
+			//attack
+			res+= 0.005*(y+1);
+			if(enemy)
+			{
+				if(find_soldier_grid(x,y+1,true) || find_soldier_grid(x+1,y+1,true) || find_soldier_grid(x-1,y+1,true)
+				|| find_soldier_grid(x-1,y,true) || find_soldier_grid(x+1,y,true))
+				{
+					//res -= 0.1;
+				}
+			}
+			// else
+			// {
+			// 	res+= 0.005*(y+1);
+			// 	//res+=0.1*(1+soldiers[i].getY());
+			// }
 		}
 		for(int i=0; i<enemy_soldiers.size(); i++)
 		{
 			int x = enemy_soldiers[i].getX();
-			int y = enemy_soldiers[i].getY();	
+			int y = enemy_soldiers[i].getY();
 			if(x>(X/2)-1) temp1--; else temp2--;
 			if(y == Y-1) //defence
 				res-= 0.4;
 			else if(y==Y-2)
 				res-= 0.05;
-			//else 	 //attack
-			//	res-= 0.005*(6-y);
-			//res+= -0.1*(Y-enemy_soldiers[i].getY());
+			//else
+			//attack
+			res-= 0.005*(8-y);
+			if(!enemy)
+			{
+				if(find_soldier_grid(x-1,y,false) || find_soldier_grid(x+1,y,false) || find_soldier_grid(x,y-1,false)
+			 	|| find_soldier_grid(x-1,y-1,false) || find_soldier_grid(x+1,y-1,false))
+				{
+					//res += 0.03;
+				}
+			}
+			// else
+			// {
+			// 	res-= 0.005*(8-y);
+			// 	//res+= -0.1*(Y-enemy_soldiers[i].getY());
+			// }
 		}
 		if(temp1>0) res+= 0.1*(temp1);
 		if(temp2>0) res+= 0.1*(temp2);
@@ -840,17 +892,35 @@ double game_state::mob()
 int townhall_scores[3][3] = {{0,20,0},
 							{80,50,30},
 							{100,70,50}};
+//I kill enemy's last soldier
+int stalemate_scores[2][2] = {{80, 60},
+															{100, 80}};
 
-double game_state::evaluation_function()
+//enemy is true for enemy move
+double game_state::evaluation_function(bool enemy)
 {
 	double res = 0;
 					// double soldiers_wt = 0.02*((double)soldiers.size() - (double)enemy_soldiers.size());
-	double soldiers_wt = 1*((double)soldiers.size() - (double)enemy_soldiers.size());
+	double soldiers_wt = 0.1*((double)soldiers.size() - (double)enemy_soldiers.size());
+	double townhalls_wt;
 	//double cannon_wt = 0.003*((double)cannons.size() - (double)enemy_cannons.size());
-	double townhalls_wt = townhall_scores[((int)townhalls.size()-((X/2)+1)/2)][((int)enemy_townhalls.size()-((X/2)+1)/2)];
-	double mobility_wt = 0.005*(mob());
-	if(((int)enemy_townhalls.size()-((X/2)+1)/2)==0)
-		mobility_wt = 10;
+	// int index1 = ((int)townhalls.size()-((X/2)+1)/2);
+	// int index2 = ((int)enemy_townhalls.size()-((X/2)+1)/2);
+	if(soldiers.size()==0)
+	{
+		townhalls_wt = 100 - stalemate_scores[((int)enemy_townhalls.size()-((X/2)+1)/2)-1][((int)townhalls.size()-((X/2)+1)/2)-1];
+	}
+	if(enemy_soldiers.size()==0)
+	{
+		townhalls_wt = stalemate_scores[((int)townhalls.size()-((X/2)+1)/2)-1][((int)enemy_townhalls.size()-((X/2)+1)/2)-1];
+	}
+	else
+	{
+		townhalls_wt = townhall_scores[((int)townhalls.size()-((X/2)+1)/2)][((int)enemy_townhalls.size()-((X/2)+1)/2)];
+	}
+	double mobility_wt = 0.005*(mob(enemy));
+	// if(((int)enemy_townhalls.size()-((X/2)+1)/2)==0||enemy_soldiers.size()==0)
+	// 	mobility_wt = 10;
 
 	res = soldiers_wt + townhalls_wt + mobility_wt;
 	//cerr << res << endl;
@@ -1159,7 +1229,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					moves.push_back(make_pair(moves.size(),g));
 				}
 				//retreat backard moves
-				if(find_soldier_grid(x-1,y,!enemy)  || find_soldier_grid(x+1,y,!enemy)  || find_soldier_grid(x-1,y+1,!enemy) 
+				if(find_soldier_grid(x-1,y,!enemy)  || find_soldier_grid(x+1,y,!enemy)  || find_soldier_grid(x-1,y+1,!enemy)
 					|| find_soldier_grid(x+1,y+1,!enemy)  || find_soldier_grid(x,y+1,!enemy) )
 				{
 					//backward
@@ -1228,7 +1298,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					moves.push_back(make_pair(moves.size(),g));
 				}
 				//retreat backard moves
-				if(find_soldier_grid(x-1,y,!enemy)  || find_soldier_grid(x+1,y,!enemy)  || find_soldier_grid(x-1,y-1,!enemy) 
+				if(find_soldier_grid(x-1,y,!enemy)  || find_soldier_grid(x+1,y,!enemy)  || find_soldier_grid(x-1,y-1,!enemy)
 					|| find_soldier_grid(x+1,y-1,!enemy)  || find_soldier_grid(x,y-1,!enemy) )
 				{
 					//backward
@@ -1248,7 +1318,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 						moves.push_back(make_pair(moves.size(),g));
 					}
 					//negative diagonal
-					if((y+2<y_dim) && (x-2>=0) && !find_soldier_grid(x-2,y+2,enemy)==-1 && !find_townhall_grid(x-2,y+2,enemy)==-1)
+					if((y+2<y_dim) && (x-2>=0) && !find_soldier_grid(x-2,y+2,enemy) && !find_townhall_grid(x-2,y+2,enemy))
 					{
 						//game_state g = *this;
 						game_state* g = new game_state(this);
@@ -1307,7 +1377,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					moves.push_back(make_pair(moves.size(),g));
 				}
 				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && !find_soldier_grid(x+4*x_par, y+4*y_par, true) &&
-				 !find_townhall(x+4*x_par, y+4*y_par, true))
+				 !find_townhall_grid(x+4*x_par, y+4*y_par, true))
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
