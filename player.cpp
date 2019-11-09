@@ -1,4 +1,7 @@
 #include "player.h"
+int stalemate_scores[2][2] = {{600 ,400 },
+							{ 800, 600}};
+
 
 player::player(int a, int x, int y, double time)
 {
@@ -85,13 +88,19 @@ double player::min_val(node* state, double alpha, double beta, int depth, double
 		return res;
 	}
 	build_children(state, true);
-	vector<node*> childr = state->children;
-	int num_child = childr.size();
+	// vector<node*> childr = state->children;
+	int num_child = state->children.size();
+	//stalemate condition
+	if(num_child==0)
+	{
+		res = stalemate_scores[((int)state->townhalls.size()-(( (state->X/2))+1)/2)-1][((int)state->enemy_townhalls.size()-(((state->X)/2)+1)/2)-1];
+	}
+
 	for(int i=0; i<num_child; i++)
 	{
 		if(timeLeft - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()) < 0.01)
 			return -1;
-		double temp = max_val(childr[i], alpha, beta, depth - 1, timeLeft - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()));
+		double temp = max_val(state->children[i], alpha, beta, depth - 1, timeLeft - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()));
 		//if(temp < res)
 		//{
 		if(temp == -1)
@@ -100,7 +109,7 @@ double player::min_val(node* state, double alpha, double beta, int depth, double
 		beta = min(res, beta);
 		if(beta <= alpha)
 		{
-			state->eval_value = res;
+			state->eval_value = res + 0.005*state->eval_func;
 			sort(state->children.begin(), state->children.begin()+i, ascending);
 			//if(res > 6) cerr << "min_prune " << depth << " " <<res << endl;
 			return res;
@@ -108,7 +117,7 @@ double player::min_val(node* state, double alpha, double beta, int depth, double
 		//}
 	}
 	sort(state->children.begin(), state->children.end(), ascending);
-	state->eval_value = res;
+	state->eval_value = res + 0.005*state->eval_func;
 	//if(res > 6) cerr << "min " << depth << " " <<res << endl;
 	return res;
 }
@@ -126,13 +135,18 @@ double player::max_val(node* state, double alpha, double beta, int depth, double
 	}
 	// if(depth==7) cerr << "hi max_val let's build chidren!" << endl;
 	build_children(state, false);
-	vector<node*> childr = state->children;
-	int num_child = childr.size();
+	// vector<node*> childr = state->children;
+	int num_child = state->children.size();
+	//stalemate condition
+	if(num_child==0)
+	{
+		res = 1000 - stalemate_scores[((int)state->enemy_townhalls.size()-(( (state->X/2))+1)/2)-1][((int)state->townhalls.size()-(((state->X)/2)+1)/2)-1];
+	}
 	for(int i=0; i<num_child; i++)
 	{
 		if(timeLeft - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()) < 0.01)
 			return -1;
-		double temp = min_val(childr[i], alpha, beta, depth - 1, timeLeft - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()));
+		double temp = min_val(state->children[i], alpha, beta, depth - 1, timeLeft - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()));
 		//if(temp > res)
 		//{
 		if(temp == -1)
@@ -141,7 +155,7 @@ double player::max_val(node* state, double alpha, double beta, int depth, double
 		alpha = max(alpha, res);
 		if(beta <= alpha)
 		{
-			state->eval_value = res;
+			state->eval_value = res + 0.005*state->eval_func;
 			sort(state->children.begin(), state->children.begin()+i, descending);
 			//if(res > 6) cerr << "max_prune " << depth << " " <<res << endl; 
 			return res;
@@ -151,20 +165,24 @@ double player::max_val(node* state, double alpha, double beta, int depth, double
 	// if(depth==7) cerr << "max_val let's sort!" << endl;
 	sort(state->children.begin(), state->children.end(), descending);
 	// if(depth==7) cerr << "max_val bye!" << endl;
-	state->eval_value = res;
+	state->eval_value = res + 0.005*state->eval_func;
 	return res;
 }
 
 int player::minimax_decision(node* state, double alpha, double beta, int depth, int result,  double timeLeft)
 {
-	double res = max_val(state, alpha, beta, depth, timeLeft);
+	double res;
+	// if(!state->enemy)
+	res = max_val(state, alpha, beta, depth, timeLeft);
+	// else
+	// 	res = min_val(state, alpha, beta, depth, timeLeft);
 	if(res==-1)
 	{
 		cerr << "oops! " << depth << "\n";
 		return result;
 	}
-	vector<node*> childr = state->children;
-	if(childr.size()==0)
+	// vector<node*> childr = state->children;
+	if(state->children.size()==0)
 		return -1;
 	// int num_child = childr.size();
 	// int ctr=0;
@@ -191,7 +209,7 @@ int player::minimax_decision(node* state, double alpha, double beta, int depth, 
 	// }
 	// if(depth==7) cerr << "bye" << endl;
 	// return childr[max_index]->id;
-	return childr[0]->id;
+	return state->children[0]->id;
 }
 
 node* player::get_child(node* root, int path, int depth)
@@ -234,16 +252,21 @@ int player::ids_pruning(int max_depth, node* root, double move_time)
 			while(path<root->children.size() && root->children[path]->eval_value == temp_val)
 			{
 				if(move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()) < 0.01)
+				{
+					cerr << "no use!" << endl;
 					return res;
+				}
 				node* best = get_child(root, path, max_depth);
+				// node* best = root->children[path];
 				if(!flag)
 					max_val(best, alpha, beta, 4, move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()));
 				else
 					min_val(best, alpha, beta, 4, move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()));
+				
 				if(best->eval_value<temp_val-1.5)
 				{
 					// node* best2 = get_child(root, 1, max_depth);
-					cerr << "wow!" << "\n";
+					cerr << "wow! " <<flag<< "\n";
 					path++;
 				}
 				else
@@ -255,7 +278,7 @@ int player::ids_pruning(int max_depth, node* root, double move_time)
 		}
 		if(nextbest && path>0)
 		{
-			cerr << "awesome!" << "\n";
+			cerr << "awesome! " <<path<< "\n";
 			res = root->children[path]->id;
 		}
 		count++;

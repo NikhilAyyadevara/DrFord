@@ -16,7 +16,7 @@ int main()
 	cin>>time_left;
 	srand(time(0));
 	map<vector<vector<int> >, int> m;
-
+	double total_time = time_left;
 	cerr << x_dim << " " << y_dim << "\n";
 
 	id--;
@@ -81,6 +81,7 @@ int main()
 		}
 		else
 		{
+			auto start = std::chrono::high_resolution_clock::now();
 			vector<Move> moves = random_player->current_state->possible_moves(false);
 			int lavda = random_player->current_state->possible_states(false).size();
 			int l1= random_player->current_state->possible_moves(true).size();
@@ -98,13 +99,13 @@ int main()
 			else if(b>29)
 				depth=5;
 			else if(b>22)
-				depth=5;
-			else if(b>13)
 				depth=6;
+			else if(b>13)
+				depth=7;
 			else if(b>10)
-				depth=7;
+				depth=9;
 			else
-				depth=7;
+				depth=10;
 			// double remaining_time = random_player->remaining_time;
 			// auto start = std::chrono::high_resolution_clock::now();
 			cerr << "depth: "<< depth << "\n";
@@ -112,27 +113,20 @@ int main()
 			node* tree = random_player->tree_build(0, false, random_player->current_state);
 			// auto end = std::chrono::high_resolution_clock::now();
 			int ran;
-			if(count!=17)
-			{
-				ran = random_player->ids_pruning(depth, tree, 0);
-			}
+			double moveTime;
+			if(time_left<1)
+				moveTime = 0.1;
+			else if(time_left<5)
+				moveTime = 0.3;
+			else if(time_left>(4*total_time)/5)
+				moveTime = 2;
+			else if(time_left<total_time/6)
+				moveTime = 1;
+			else if(time_left<total_time/4)
+				moveTime = 2;
 			else
-			{
-				ran = random_player->ids_pruning(depth, tree, 0);
-				//ran = tree->children[16]->id;
-			}
-
-			//debug starts
-			//if(count >=13)
-			{
-				int t_size = tree->children.size();
-				for(int i=0; i<t_size; i++)
-				{
-					int ind = tree->children[i]->id;
-					cerr << ind<<" "<<moves[ind].x1<<" "<<moves[ind].y1<<" to "<<moves[ind].x2<<" "<<moves[ind].y2<<"-------eval_value---"<<tree->children[i]->eval_value<<endl;
-					//cerr << "eval_func-"<<i<<" "<<tree->children[i]->eval_func<<endl;
-				}
-			}//debug ends
+				moveTime = 5;
+			ran = random_player->ids_pruning(depth, tree, moveTime);
 
 
 			char temp;
@@ -169,6 +163,8 @@ int main()
 			//cerr<< std::chrono::duration_cast<chrono::milliseconds>(end-start).count() << "\n";
 			cout<< 'S'<<' '<<moves.at(ran).x1<<' '<<moves.at(ran).y1<<' '<<temp<<' '<<moves.at(ran).x2<<' '<<moves.at(ran).y2<<"\n";
 			random_player->current_state->change_state(moves.at(ran).x1, moves.at(ran).y1, moves.at(ran).x2, moves.at(ran).y2, moves.at(ran).bomb, false);
+			auto end = std::chrono::high_resolution_clock::now();
+			time_left -= std::chrono::duration_cast<std::chrono::duration<double> >(end-start).count();
 			cerr << "eval: " << tree->eval_value <<"\n";
 			delete tree;
 		}
