@@ -1,5 +1,5 @@
 #include "player.h"
-int stalemate_scores[2][2] = {{600 ,400 },
+int stalemate_scores1[2][2] = {{600 ,400 },
 							{ 800, 600}};
 
 
@@ -93,7 +93,7 @@ double player::min_val(node* state, double alpha, double beta, int depth, double
 	//stalemate condition
 	if(num_child==0)
 	{
-		res = stalemate_scores[((int)state->townhalls.size()-(( (state->X/2))+1)/2)-1][((int)state->enemy_townhalls.size()-(((state->X)/2)+1)/2)-1];
+		res = stalemate_scores1[((int)state->current_state->townhalls.size()-(( (state->current_state->X/2))+1)/2)-1][((int)state->current_state->enemy_townhalls.size()-(((state->current_state->X)/2)+1)/2)-1];
 	}
 
 	for(int i=0; i<num_child; i++)
@@ -140,7 +140,7 @@ double player::max_val(node* state, double alpha, double beta, int depth, double
 	//stalemate condition
 	if(num_child==0)
 	{
-		res = 1000 - stalemate_scores[((int)state->enemy_townhalls.size()-(( (state->X/2))+1)/2)-1][((int)state->townhalls.size()-(((state->X)/2)+1)/2)-1];
+		res = 1000 - stalemate_scores1[((int)state->current_state->enemy_townhalls.size()-(( (state->current_state->X/2))+1)/2)-1][((int)state->current_state->townhalls.size()-(((state->current_state->X)/2)+1)/2)-1];
 	}
 	for(int i=0; i<num_child; i++)
 	{
