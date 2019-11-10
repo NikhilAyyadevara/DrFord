@@ -563,7 +563,10 @@ double game_state::mob(bool enemy)
 				}
 				else if(y>= 6)
 				{
-					res+= (1-id)*0.3;
+					if(Y==8)
+						res+= (1-id)*0.3;
+					else // 8 7 6
+						res+= (1-id)*0.1*(Y-1-y);
 					// if(x%2==0)
 					// 	res+=(1-id)*0.1;
 				}
@@ -591,7 +594,10 @@ double game_state::mob(bool enemy)
 				}
 				else if(y<=Y-7)
 				{
-					res+= id*0.3;
+					if(Y==8)
+						res+= id*0.3;
+					else //1 2 3
+						res+=id*0.1*(y);
 					// if(x%2==1)
 					// 	res+=(id)*0.1;
 				}
@@ -608,6 +614,12 @@ double game_state::mob(bool enemy)
 					res+= (1-id)*0.7;
 				else if(x>=3)
 					res+= (1-id)*0.3;
+
+				if(Y==10)
+				{
+					if(y>3)// 8 7 6 5 4
+						res+= (1-id)*0.2*(Y-2-y);
+				}
 			}
 				//res+=0.5;
 			if(!find_soldier_grid(x+2,y+2,true) && !find_townhall_grid(x+2,y+2,true) && !find_soldier_grid(x+2,y+2,false) && !find_townhall_grid(x+2,y+2,false))
@@ -618,6 +630,12 @@ double game_state::mob(bool enemy)
 					res+= id*0.7;
 				else if(x<=X-3)
 					res+= id*0.3;
+
+				if(Y==10)
+				{
+					if(y<6) // 1 2 3 4 5
+						res += id*0.2*(y-1);
+				}
 			}
 		}
 		else if(orient == 2)
@@ -649,6 +667,12 @@ double game_state::mob(bool enemy)
 					res+= (1-id)*0.7;
 				else if(x<=X-3)
 					res+= (1-id)*0.3;
+
+				if(Y==10)
+				{
+					if(y>3) // 8 7 6 5 4
+						res+=(1-id)*0.2*(Y-2-y);
+				}
 			}
 			if(!find_soldier_grid(x+2,y-2,true) && !find_townhall_grid(x+2,y-2,true) && !find_soldier_grid(x+2,y-2,false) && !find_townhall_grid(x+2,y-2,false))
 			{
@@ -658,6 +682,12 @@ double game_state::mob(bool enemy)
 					res+= (id)*0.7;
 				else if(x>=3)
 					res+= (id)*0.3;
+
+				if(Y==10)
+				{
+					if(y<6) // 1 2 3 4 5
+						res+=(id)*0.2*(y-1);
+				}
 			}
 		}
 	}
@@ -698,7 +728,10 @@ double game_state::mob(bool enemy)
 				}
 				else if(y>= 6)
 				{
-					res-= (id)*0.3;
+					if(Y==8)
+						res-= (id)*0.3;
+					else // 8 7 6
+						res-= (id)*0.1*(Y-1-y);
 					// if(x%2==0)
 					// 	res-=id*0.1;
 				}
@@ -724,7 +757,10 @@ double game_state::mob(bool enemy)
 				}
 				else if(y==Y-7)
 				{
-					res-= (1-id)*0.3;
+					if(Y==8)
+						res-= (1-id)*0.3;
+					else //1 2 3
+						res-= (1-id)*0.1*(y);
 					// if(x%2==1)
 					// 	res-=(1-id)*0.1;
 				}
@@ -740,6 +776,12 @@ double game_state::mob(bool enemy)
 					res-= (id)*0.7;
 				else if(x>=3)
 					res-= (id)*0.3;
+
+				if(Y==10)
+				{
+					if(y>3) //8 7 6 5 4
+						res-=(id)*0.2*(Y-2-y);
+				}
 			}
 				//res-=0.5;
 			if(!find_soldier_grid(x+2,y+2,false) && !find_townhall_grid(x+2,y+2,false) && !find_soldier_grid(x+2,y+2,true) && !find_townhall_grid(x+2,y+2,true))
@@ -750,6 +792,12 @@ double game_state::mob(bool enemy)
 					res-= (1-id)*0.7;
 				else if(x<=X-3)
 					res-= (1-id)*0.3;
+
+				if(Y==10)
+				{
+					if(y<6) //1 2 3 4 5
+						res-=(1-id)*0.2*(y-1);
+				}
 			}
 		}
 		else if(orient == 2)
@@ -781,6 +829,12 @@ double game_state::mob(bool enemy)
 					res-= (id)*0.7;
 				else if(x<=X-3)
 					res-= (id)*0.3;
+
+				if(Y==10)
+				{
+					if(y>3) //8 7 6 5 4
+						res-= (id)*0.2*(Y-2-y);
+				}
 			}
 			if(!find_soldier_grid(x+2,y-2,false) && !find_townhall_grid(x+2,y-2,false) && !find_soldier_grid(x+2,y-2,true) && !find_townhall_grid(x+2,y-2,true))
 			{
@@ -790,6 +844,12 @@ double game_state::mob(bool enemy)
 					res-= (1-id)*0.7;
 				else if(x>=3)
 					res-= (1-id)*0.3;
+
+				if(Y==10)
+				{
+					if(y<6)//1 2 3 4 5
+						res-=(1-id)*0.2*(y-1);
+				}
 			}
 		}
 	}
@@ -817,6 +877,10 @@ double game_state::mob(bool enemy)
 				res+= 0.4;
 			else if(y== Y-2)
 				res+=0.05;
+			else if(y==0 && x%2==1)
+				res+=0.1;
+			else if(y<=1)
+				res+= 0.4;
 			//else
 			// attack enemy_cannons
 			// res+= 0.005*(8-y);
@@ -854,6 +918,10 @@ double game_state::mob(bool enemy)
 				res-= 0.4;
 			else if(y==1)
 				res-=0.05;
+			else if(y==Y-1 && x%2 == 0)
+				res-=0.1;
+			else if(y>=Y-2)
+				res-= 0.4;
 			//else
 			//attack
 			// res-= 0.005*(y+1);
@@ -875,7 +943,9 @@ double game_state::mob(bool enemy)
 		{ 
 			res+= 0.1*temp1;
 			if(temp3>0)
-				res += 0.005*temp3; 
+				res += 0.005*temp3;
+			// else
+			// 	res -= 0.003*temp3;
 		}
 		else if(temp3<0)
 			res += 0.005*temp3;
@@ -913,6 +983,10 @@ double game_state::mob(bool enemy)
 				res+= 0.4;
 			else if(y==1)
 				res+= 0.05;
+			else if(y==Y-1 && x%2 ==0)
+				res+=0.1;
+			else if(y>=Y-2)
+				res+= 0.4;
 			//else
 			//attack
 			// res+= 0.005*(y+1);
@@ -950,6 +1024,10 @@ double game_state::mob(bool enemy)
 				res-= 0.4;
 			else if(y==Y-2)
 				res-= 0.05;
+			else if(y==0 && x%2 ==1)
+				res-=0.1;
+			else if(y<=1)
+				res -= 0.4;
 			//else
 			//attack
 			// res-= 0.005*(8-y);

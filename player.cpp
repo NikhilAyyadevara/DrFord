@@ -113,17 +113,19 @@ double player::min_val(node* state, double alpha, double beta, int depth, double
 		beta = min(res, beta);
 		if(beta <= alpha)
 		{
-			state->eval_value = res;// + 0.0001*state->eval_func;
 			sort(state->children.begin(), state->children.begin()+i, ascending);
+			// res += 0.000000001*state->children[0]->eval_func;
+			state->eval_value = res;// + 0.0001*state->eval_func;
 			//if(res > 6) cerr << "min_prune " << depth << " " <<res << endl;
-			return state->eval_value;
+			return res;
 		}
 		//}
 	}
 	sort(state->children.begin(), state->children.end(), ascending);
+	// res += 0.000000001*state->children[0]->eval_func;
 	state->eval_value = res;// + 0.0001*state->eval_func;
 	//if(res > 6) cerr << "min " << depth << " " <<res << endl;
-	return state->eval_value;
+	return res;
 }
 
 double player::max_val(node* state, double alpha, double beta, int depth, double timeLeft)
@@ -163,15 +165,17 @@ double player::max_val(node* state, double alpha, double beta, int depth, double
 		alpha = max(alpha, res);
 		if(beta <= alpha)
 		{
-			state->eval_value = res;// + 0.0001*state->eval_func;
 			sort(state->children.begin(), state->children.begin()+i, descending);
+			// res = res + 0.000000001*state->children[0]->eval_func;
 			//if(res > 6) cerr << "max_prune " << depth << " " <<res << endl; 
-			return state->eval_value;
+			state->eval_value = res;// + 0.0001*state->eval_func;
+			return res;
 		}
 		//}
 	}
 	// if(depth==7) cerr << "max_val let's sort!" << endl;
 	sort(state->children.begin(), state->children.end(), descending);
+	// res += 0.000000001*state->children[0]->eval_func;
 	// if(depth==7) cerr << "max_val bye!" << endl;
 	state->eval_value = res;// + 0.0001*state->eval_func;
 	return state->eval_value;
@@ -186,7 +190,7 @@ int player::minimax_decision(node* state, double alpha, double beta, int depth, 
 	// 	res = min_val(state, alpha, beta, depth, timeLeft);
 	if(res==-1)
 	{
-		cerr << "oops! " << depth << "\n";
+		// cerr << "oops! " << depth << "\n";
 		return result;
 	}
 	// vector<node*> childr = state->children;
@@ -230,13 +234,19 @@ node* player::get_child(node* root, int path, int depth)
 	}
 }
 
-int player::ids_pruning(int max_depth, node* root, double move_time)
+int player::ids_pruning(int max_depth, node* root, double move_time, int branch)
 {
 	std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 	int res = 0;
 	double alpha = -1*INFINITY;
 	double beta = INFINITY;
 	int count = 1;
+	// int board_y = current_state->Y;
+	// double sqrt_b = sqrt(branch);
+	// double lamda = sqrt_b/(1.2+sqrt_b);
+	// cerr<< "lamda" << lamda << "\n";
+	// if(board_y==8)
+	double lamda = (3.0/5.0);
 	// for(int i=1; i< max_depth; i++)
 	// {
 	// 	minimax_decision(root, alpha, beta, i);	
@@ -249,9 +259,9 @@ int player::ids_pruning(int max_depth, node* root, double move_time)
 	{
 		if(move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()) < 0.01)
 			return res;
-		if((move_time==5) && move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()) < (3*move_time)/5)
+		if((move_time==5) && move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()) < (lamda*move_time))
 		{
-			cerr << "oopss " << count << "\n";
+			// cerr << "oopss " << count << "\n";
 			return res;
 		}
 		res = minimax_decision(root, alpha, beta, count, res, move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()));
@@ -266,7 +276,7 @@ int player::ids_pruning(int max_depth, node* root, double move_time)
 			{
 				if(move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()) < 0.01)
 				{
-					cerr << "no use!" << endl;
+					// cerr << "no use!" << endl;
 					return res;
 				}
 				node* best = get_child(root, path, max_depth);
@@ -279,7 +289,7 @@ int player::ids_pruning(int max_depth, node* root, double move_time)
 				if(best->eval_value<temp_val-1.5)
 				{
 					// node* best2 = get_child(root, 1, max_depth);
-					cerr << "wow! " <<flag<< "\n";
+					// cerr << "wow! " <<flag<< "\n";
 					path++;
 				}
 				else
@@ -291,7 +301,7 @@ int player::ids_pruning(int max_depth, node* root, double move_time)
 		}
 		if(nextbest && path>0)
 		{
-			cerr << "awesome! " <<path<< "\n";
+			// cerr << "awesome! " <<path<< "\n";
 			res = root->children[path]->id;
 		}
 		count++;

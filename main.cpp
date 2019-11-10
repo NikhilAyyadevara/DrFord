@@ -18,9 +18,14 @@ int main()
 	map<vector<vector<int> >, int> m;
 	double total_time = time_left;
 	cerr << x_dim << " " << y_dim << "\n";
+	vector<vector<short> > board_old;
+	vector<vector<short> > board_new;
 
 	id--;
 	player* random_player = new player(id,x_dim,y_dim,time_left);
+
+	board_old = random_player->current_state->board;
+	board_new = random_player->current_state->board;
 	if(id==1)
 	{
 		//waiting for opponents move
@@ -45,8 +50,7 @@ int main()
 	int count=0;
 	while(true)
 	{
-		if(false)
-		{}
+
 		//our move
 		if(count==0 && id==0)
 		{
@@ -54,12 +58,14 @@ int main()
 			{
 				cout << "S "<<2<<" " <<y_dim-1<<" M "<< 1<<" "<< y_dim-2 << "\n";
 				random_player->current_state->change_state(2,(y_dim-1),1,(y_dim-2),0,false);
+				board_new = random_player->current_state->board;
 			}
 
 			else
 			{
 				cout << "S "<<4<<" " <<y_dim-1<<" M "<< 5<<" "<< y_dim-2 << "\n";
 				random_player->current_state->change_state(4,(y_dim-1),5,(y_dim-2),0,false);
+				board_new = random_player->current_state->board;
 			}
 
 			// else if(id==1)
@@ -83,18 +89,20 @@ int main()
 		{
 			auto start = std::chrono::high_resolution_clock::now();
 			vector<Move> moves = random_player->current_state->possible_moves(false);
-			int lavda = random_player->current_state->possible_states(false).size();
-			int l1= random_player->current_state->possible_moves(true).size();
-			int l2 = random_player->current_state->possible_states(true).size();
-			if(moves.size()!=lavda || l1!=l2)
-			{
-				cerr << l1 << " " << l2<<endl;
-				cerr << "dengindhi po" <<"\n";
-				return 0;
-			}
+			// int lavda = random_player->current_state->possible_states(false).size();
+			// int l1= random_player->current_state->possible_moves(true).size();
+			// int l2 = random_player->current_state->possible_states(true).size();
+			// if(moves.size()!=lavda || l1!=l2)
+			// {
+			// 	cerr << l1 << " " << l2<<endl;
+			// 	cerr << "dengindhi po" <<"\n";
+			// 	return 0;
+			// }
 			int b1 = random_player->current_state->possible_moves(true).size();
 			int b = ((int)moves.size()+b1)/2;
-			if(b>39)
+			if(b>43)
+				depth=3;
+			else if(b>39)
 				depth=4;
 			else if(b>29)
 				depth=5;
@@ -114,19 +122,36 @@ int main()
 			int ran;
 			double moveTime;
 			if(time_left<1)
+				moveTime = 0.03;
+			else if(time_left<2)
 				moveTime = 0.1;
 			else if(time_left<5)
 				moveTime = 0.3;
+			else if(time_left<10)
+				moveTime = 0.5;
 			else if(time_left>(4*total_time)/5)
 				moveTime = 2;
 			else if(time_left<total_time/6)
 				moveTime = 1;
 			else if(time_left<total_time/4)
 				moveTime = 2;
-			else
+			else if(x_dim == 8)
 				moveTime = 5;
-			ran = random_player->ids_pruning(depth, tree, moveTime);
+			else
+				moveTime = 4;
+			ran = random_player->ids_pruning(depth, tree, moveTime, b);
+			bool stagnant = false;
+			if(tree->children.size()>1)
+			{
+				if(board_new == tree->children[0]->current_state->board || board_old == tree->children[0]->current_state->board)
+				{
+					stagnant = true;
+					cerr << "stagnant!" << "\n";
+				}
+			}
 
+			if(stagnant)
+				ran = tree->children[1]->id;
 
 			char temp;
 			// testing begin
@@ -164,11 +189,18 @@ int main()
 			// }
 			random_player->current_state->change_state(moves.at(ran).x1, moves.at(ran).y1, moves.at(ran).x2, moves.at(ran).y2, moves.at(ran).bomb, false);
 			auto end = std::chrono::high_resolution_clock::now();
-			time_left -= std::chrono::duration_cast<std::chrono::duration<double> >(end-start).count();
-			cerr << "depth: "<< depth << "\n";
-			cerr << "branching factor: " << b << "\n";
-			cerr << "eval: " << tree->eval_value <<"\n";
+			time_left -= std::chrono::duration_cast<std::chrono::duration<double> >(end-start).count(); 
+
+			cerr << "time_left " << time_left << "\n";
+			// cerr << "depth: "<< depth << "\n";
+			// cerr << "branching factor: " << b << "\n";
+			// cerr << "eval: " << tree->eval_value <<"\n";
+			board_old = board_new;
+			board_new = random_player->current_state->board;
 			delete tree;
+			
+
+
 		}
 		//opponents move
 		char s,b;
