@@ -35,10 +35,10 @@ class game_state
 		void remove_cannons (int, int, bool);
 		void add_cannons(int, int, bool);
 		game_state(game_state* g);
-		double evaluation_function();
+		double evaluation_function(bool enemy);
 		vector<pair<int,game_state*> > possible_states(bool);
 		vector<Move> possible_moves(bool);
 		bool find_soldier_grid(int , int , bool );
 		bool find_townhall_grid(int , int , bool );
-		double mob();
+		double mob(bool enemy);
 };

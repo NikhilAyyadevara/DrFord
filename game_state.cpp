@@ -521,7 +521,7 @@ void game_state::change_state(int x1, int y1, int x2, int y2, bool bomb, bool en
 
 
 //mobility
-double game_state::mob()
+double game_state::mob(bool enemy)
 {
 	double res = 0;
 	int flag = 0;
@@ -535,72 +535,160 @@ double game_state::mob()
 		{
 			if(!find_soldier_grid(x,y-2,true) && !find_townhall_grid(x,y-2,true) && !find_soldier_grid(x,y-2,false) && !find_townhall_grid(x,y-2,false))
 			{
+				// if(y<=4)
+				// 	res+= (1-id)*1;
+				// else if(y==5)
+				// 	res+= (1-id)*0.70;
+				// else if(y>= 6)
+				// 	res+= (1-id)*0.3;
+				//incresed wt in cannon is in townhalls column
 				if(y<=4)
-					res+= (1-id)*1;
+				{
+					if(board[x][0]<0)
+					{
+						res+= (1-id)*2;
+						if(x%2==0)
+							res+=(1-id)*0.2;
+					}
+					else
+					{
+						res+= (1-id)*1;
+					}
+				}
 				else if(y==5)
+				{
 					res+= (1-id)*0.70;
+					if(x%2==0)
+						res+=(1-id)*0.1;
+				}
 				else if(y>= 6)
-					res+= (1-id)*0.3;
+				{
+					if(Y==8)
+						res+= (1-id)*0.3;
+					else // 8 7 6
+						res+= (1-id)*0.1*(Y-1-y);
+					// if(x%2==0)
+					// 	res+=(1-id)*0.1;
+				}
 			}
 			if( !find_soldier_grid(x,y+2,true) && !find_townhall_grid(x,y+2,true) && !find_soldier_grid(x,y+2,false) && !find_townhall_grid(x,y+2,false))
+			{
 				if(y>=Y-5)
-					res+= id*1;
+				{
+					if(board[x][Y-1]<0)
+					{
+						res+= id*2;
+						if(x%2==1)
+							res+=(id)*0.2;
+					}
+					else
+					{
+						res+=id*1;
+					}
+				}
 				else if(y==Y-6)
+				{
 					res+= id*0.7;
+					if(x%2==1)
+						res+=(id)*0.1;
+				}
 				else if(y<=Y-7)
-					res+= id*0.3;
+				{
+					if(Y==8)
+						res+= id*0.3;
+					else //1 2 3
+						res+=id*0.1*(y);
+					// if(x%2==1)
+					// 	res+=(id)*0.1;
+				}
 				//res+= id*0.5;
+			}
 		}
 		else if(orient == 1)
 		{
 			if(!find_soldier_grid(x-2,y-2,true) && !find_townhall_grid(x-2,y-2,true) && !find_soldier_grid(x-2,y-2,false) && !find_townhall_grid(x-2,y-2,false))
+			{
 				if(x>=6)
 					res+= (1-id)*1;
 				else if(x==5)
 					res+= (1-id)*0.7;
 				else if(x>=3)
 					res+= (1-id)*0.3;
+
+				if(Y==10)
+				{
+					if(y>3)// 8 7 6 5 4
+						res+= (1-id)*0.2*(Y-2-y);
+				}
+			}
 				//res+=0.5;
 			if(!find_soldier_grid(x+2,y+2,true) && !find_townhall_grid(x+2,y+2,true) && !find_soldier_grid(x+2,y+2,false) && !find_townhall_grid(x+2,y+2,false))
+			{
 				if(x<=X-7)
 					res+= id*1;
 				else if(x<=X-6)
 					res+= id*0.7;
 				else if(x<=X-3)
 					res+= id*0.3;
+
+				if(Y==10)
+				{
+					if(y<6) // 1 2 3 4 5
+						res += id*0.2*(y-1);
+				}
+			}
 		}
 		else if(orient == 2)
 		{
 			if(flag == 0 &&  !find_soldier_grid(x-2,y,true) && !find_townhall_grid(x-2,y,true) && !find_soldier_grid(x-2,y,false) && !find_townhall_grid(x-2,y,false))
+			{
 				if(y>=Y-3 && x>=1 && x<=X-2)
 				{
 					res+=0.5;
 					flag = 1;
 				}
+			}
 			if(flag == 0 && !find_soldier_grid(x+2,y,true) && !find_townhall_grid(x+2,y,true) && !find_soldier_grid(x+2,y,false) && !find_townhall_grid(x+2,y,false))
+			{
 				if(y<=2 && x>=1 && x<=X-2)
 				{
 					res+=0.5;
 					flag =1;
-				}	
-			
+				}
+			}
 		}
 		else if(orient == 3)
 		{
 			if( !find_soldier_grid(x-2,y+2,true) && !find_townhall_grid(x-2,y+2,true) && !find_soldier_grid(x-2,y+2,false) && !find_townhall_grid(x-2,y+2,false))
+			{
 				if(x==1)
 					res+=(1-id)*1;
 				else if(x==2)
 					res+= (1-id)*0.7;
 				else if(x<=X-3)
 					res+= (1-id)*0.3;
+
+				if(Y==10)
+				{
+					if(y>3) // 8 7 6 5 4
+						res+=(1-id)*0.2*(Y-2-y);
+				}
+			}
 			if(!find_soldier_grid(x+2,y-2,true) && !find_townhall_grid(x+2,y-2,true) && !find_soldier_grid(x+2,y-2,false) && !find_townhall_grid(x+2,y-2,false))
+			{
 				if(x>=6)
 					res+= (id)*1;
 				else if(x==5)
 					res+= (id)*0.7;
 				else if(x>=3)
 					res+= (id)*0.3;
+
+				if(Y==10)
+				{
+					if(y<6) // 1 2 3 4 5
+						res+=(id)*0.2*(y-1);
+				}
+			}
 		}
 	}
 	flag = 0;
@@ -614,154 +702,404 @@ double game_state::mob()
 		{
 			if(!find_soldier_grid(x,y-2,false) && !find_townhall_grid(x,y-2,false) && !find_soldier_grid(x,y-2,true) && !find_townhall_grid(x,y-2,true))
 			{
+				// if(y<=4)
+				// 	res-= (id)*1;
+				// else if(y==5)
+				// 	res-= (id)*0.70;
+				// else if(y>= 6)
+				// 	res-= (id)*0.3;
+
 				if(y<=4)
-					res-= (id)*1;
+				{
+					if(board[x][0]>0)
+					{
+						res-= (id)*2;
+						if(x%2==0)
+							res-=id*0.2;
+					}
+					else
+						res-=id*1;
+				}
 				else if(y==5)
+				{
 					res-= (id)*0.70;
+					if(x%2==0)
+						res-=id*0.1;
+				}
 				else if(y>= 6)
-					res-= (id)*0.3;
+				{
+					if(Y==8)
+						res-= (id)*0.3;
+					else // 8 7 6
+						res-= (id)*0.1*(Y-1-y);
+					// if(x%2==0)
+					// 	res-=id*0.1;
+				}
 			}
 			if( !find_soldier_grid(x,y+2,false) && !find_townhall_grid(x,y+2,false) && !find_soldier_grid(x,y+2,true) && !find_townhall_grid(x,y+2,true))
+			{
 				if(y>=Y-5)
-					res-= (1-id)*1;
+				{
+					if(board[x][Y-1]>0)
+					{
+						res-= (1-id)*2;
+						if(x%2==1)
+							res-=(1-id)*0.2;
+					}
+					else
+						res-=(1-id)*1;
+				}
 				else if(y==Y-6)
+				{
 					res-= (1-id)*0.7;
+					if(x%2==1)
+						res-=(1-id)*0.1;
+				}
 				else if(y==Y-7)
-					res-= (1-id)*0.3;
+				{
+					if(Y==8)
+						res-= (1-id)*0.3;
+					else //1 2 3
+						res-= (1-id)*0.1*(y);
+					// if(x%2==1)
+					// 	res-=(1-id)*0.1;
+				}
+			}
 		}
 		else if(orient == 1)
 		{
 			if(!find_soldier_grid(x-2,y-2,false) && !find_townhall_grid(x-2,y-2,false) && !find_soldier_grid(x-2,y-2,true) && !find_townhall_grid(x-2,y-2,true))
+			{
 				if(x>=6)
 					res-= (id)*1;
 				else if(x==5)
 					res-= (id)*0.7;
 				else if(x>=3)
 					res-= (id)*0.3;
+
+				if(Y==10)
+				{
+					if(y>3) //8 7 6 5 4
+						res-=(id)*0.2*(Y-2-y);
+				}
+			}
 				//res-=0.5;
 			if(!find_soldier_grid(x+2,y+2,false) && !find_townhall_grid(x+2,y+2,false) && !find_soldier_grid(x+2,y+2,true) && !find_townhall_grid(x+2,y+2,true))
+			{
 				if(x<=X-7)
 					res-= (1-id)*1;
 				else if(x<=X-6)
 					res-= (1-id)*0.7;
 				else if(x<=X-3)
 					res-= (1-id)*0.3;
+
+				if(Y==10)
+				{
+					if(y<6) //1 2 3 4 5
+						res-=(1-id)*0.2*(y-1);
+				}
+			}
 		}
 		else if(orient == 2)
 		{
 			if(flag == 0 && !find_soldier_grid(x-2,y,false) && !find_townhall_grid(x-2,y,false) && !find_soldier_grid(x-2,y,true) && !find_townhall_grid(x-2,y,true))
+			{
 				if(y>=Y-3 && x>=1 && x<=X-2)
 				{
 					flag = 1;
 					res-=0.5;
 				}
+			}
 			if(flag == 0 && !find_soldier_grid(x+2,y,false) && !find_townhall_grid(x+2,y,false) && !find_soldier_grid(x+2,y,true) && !find_townhall_grid(x+2,y,true))
+			{
 				if(y<=2 && x>=1 && x<=X-2)
 				{
 					flag = 1;
 					res-=0.5;
 				}
+			}
 		}
 		else if(orient == 3)
 		{
 			if( !find_soldier_grid(x-2,y+2,false) && !find_townhall_grid(x-2,y+2,false) && !find_soldier_grid(x-2,y+2,true) && !find_townhall_grid(x-2,y+2,true))
+			{
 				if(x<=X-7)
 					res-=(id)*1;
 				else if(x<=X-6)
 					res-= (id)*0.7;
 				else if(x<=X-3)
 					res-= (id)*0.3;
+
+				if(Y==10)
+				{
+					if(y>3) //8 7 6 5 4
+						res-= (id)*0.2*(Y-2-y);
+				}
+			}
 			if(!find_soldier_grid(x+2,y-2,false) && !find_townhall_grid(x+2,y-2,false) && !find_soldier_grid(x+2,y-2,true) && !find_townhall_grid(x+2,y-2,true))
+			{
 				if(x>=6)
 					res-= (1-id)*1;
 				else if(x==5)
 					res-= (1-id)*0.7;
 				else if(x>=3)
 					res-= (1-id)*0.3;
+
+				if(Y==10)
+				{
+					if(y<6)//1 2 3 4 5
+						res-=(1-id)*0.2*(y-1);
+				}
+			}
 		}
 	}
 	if(id == 0)
 	{
 		int temp1=0,temp2=0;
+		int temp3=0, temp4=0;
 		for(int i=0; i<soldiers.size(); i++)
 		{
 			int x = soldiers[i].getX();
 			int y = soldiers[i].getY();
-			if(x>(X/2)-1) temp1++; else temp2++;
+			if(x>(X/2)-1)
+			{
+				temp1++;
+				// if(y<Y-2)
+					temp3 += Y-1-y;
+			}
+			else
+			{
+				temp2++;
+				// if(y<Y-2)
+					temp4 += Y-1-y;
+			}
 			if(y == Y-1) //defend cannons
 				res+= 0.4;
 			else if(y== Y-2)
 				res+=0.05;
-			//else// attack enemy_cannons
-				//res+= 0.005*(6-y);
-			//res+=0.1*(Y-soldiers[i].getY());
-		}		
+			else if(y==0 && x%2==1)
+				res+=0.1;
+			else if(y<=1)
+				res+= 0.4;
+			//else
+			// attack enemy_cannons
+			// res+= 0.005*(8-y);
+			// if(enemy) //can modify this!
+			// {
+			// 	if(find_soldier_grid(x,y-1,true) || find_soldier_grid(x+1,y-1,true) || find_soldier_grid(x-1,y-1,true)
+			// 	|| find_soldier_grid(x-1,y,true) || find_soldier_grid(x+1,y,true))
+			// 	{
+			// 		//res -= 0.1;
+			// 	}
+			// }
+			// else
+			// {
+			// 	res+= 0.005*(8-y);
+			// //res+=0.1*(Y-soldiers[i].getY());
+			// }
+		}
 		for(int i=0; i<enemy_soldiers.size(); i++)
 		{
 			int x = enemy_soldiers[i].getX();
 			int y = enemy_soldiers[i].getY();
-			if(x>(X/2)-1) temp1--; else temp2--;
+			if(x>(X/2)-1)
+			{
+				temp1--;
+				// if(y>1)
+					temp3 -= y;
+			} 
+			else 
+			{
+				temp2--;
+				// if(y>1)
+					temp4 -= y;
+			}
 			if(y == 0)//defence
 				res-= 0.4;
 			else if(y==1)
 				res-=0.05;
-			//else //attack
-				//res-= 0.005*(y-1);
-			//res+= -0.1*(1+enemy_soldiers[i].getY());
+			else if(y==Y-1 && x%2 == 0)
+				res-=0.1;
+			else if(y>=Y-2)
+				res-= 0.4;
+			//else
+			//attack
+			// res-= 0.005*(y+1);
+			// if(!enemy)
+			// {
+			// 	if(find_soldier_grid(x-1,y,false) || find_soldier_grid(x+1,y,false) || find_soldier_grid(x,y+1,false)
+			//  	|| find_soldier_grid(x-1,y+1,false) || find_soldier_grid(x+1,y+1,false))
+			// 	{
+			// 		//res += 0.03;
+			// 	}
+			// }
+			// else
+			// {
+			// 	res-= 0.005*(y+1);
+			// 	//res+= -0.1*(1+enemy_soldiers[i].getY());
+			// }
 		}
-		if(temp1>0) res+= 0.1*temp1;
-		if(temp2>0) res+= 0.1*(temp2);
+		if(temp1>0)
+		{ 
+			res+= 0.1*temp1;
+			if(temp3>0)
+				res += 0.005*temp3;
+			// else
+			// 	res -= 0.003*temp3;
+		}
+		else if(temp3<0)
+			res += 0.005*temp3;
+
+		if(temp2>0)
+		{ 
+			res+= 0.1*(temp2); 
+			if(temp4>0)
+				res += 0.005*temp4; 
+		}
+		else if(temp4<0)
+			res += 0.005*temp4;
 
 	}
 	else if(id == 1)
-	{	
-		int temp1=0,temp2=0;
+	{
+		int temp1=0,temp2=0, temp3=0, temp4=0;
 		for(int i=0; i<soldiers.size(); i++)
 		{
 			int x = soldiers[i].getX();
-			int y = soldiers[i].getY();	
-			if(x>(X/2)-1) temp1++; else temp2++;
+			int y = soldiers[i].getY();
+			if(x>(X/2)-1)
+			{
+				temp1++;
+				// if(y>1)
+					temp3 += y;
+			} 
+			else 
+			{
+				temp2++;
+				// if(y>1)
+					temp4 += y;
+			}
 			if(y== 0) //defence
 				res+= 0.4;
 			else if(y==1)
 				res+= 0.05;
-			//else //attack
-			//	res+= 0.005*(y-1);
-			//res+=0.1*(1+soldiers[i].getY());
+			else if(y==Y-1 && x%2 ==0)
+				res+=0.1;
+			else if(y>=Y-2)
+				res+= 0.4;
+			//else
+			//attack
+			// res+= 0.005*(y+1);
+			// if(enemy)
+			// {
+			// 	if(find_soldier_grid(x,y+1,true) || find_soldier_grid(x+1,y+1,true) || find_soldier_grid(x-1,y+1,true)
+			// 	|| find_soldier_grid(x-1,y,true) || find_soldier_grid(x+1,y,true))
+			// 	{
+			// 		//res -= 0.1;
+			// 	}
+			// }
+			// else
+			// {
+			// 	res+= 0.005*(y+1);
+			// 	//res+=0.1*(1+soldiers[i].getY());
+			// }
 		}
 		for(int i=0; i<enemy_soldiers.size(); i++)
 		{
 			int x = enemy_soldiers[i].getX();
-			int y = enemy_soldiers[i].getY();	
-			if(x>(X/2)-1) temp1--; else temp2--;
+			int y = enemy_soldiers[i].getY();
+			if(x>(X/2)-1)
+			{
+				temp1--;
+				// if(y<Y-2)
+					temp3 -= Y-1-y;
+			}
+			else
+			{
+				temp2--;
+				// if(y<Y-2)
+					temp4 -= Y-1-y;
+			}
 			if(y == Y-1) //defence
 				res-= 0.4;
 			else if(y==Y-2)
 				res-= 0.05;
-			//else 	 //attack
-			//	res-= 0.005*(6-y);
-			//res+= -0.1*(Y-enemy_soldiers[i].getY());
+			else if(y==0 && x%2 ==1)
+				res-=0.1;
+			else if(y<=1)
+				res -= 0.4;
+			//else
+			//attack
+			// res-= 0.005*(8-y);
+			// if(!enemy)
+			// {
+			// 	if(find_soldier_grid(x-1,y,false) || find_soldier_grid(x+1,y,false) || find_soldier_grid(x,y-1,false)
+			//  	|| find_soldier_grid(x-1,y-1,false) || find_soldier_grid(x+1,y-1,false))
+			// 	{
+			// 		//res += 0.03;
+			// 	}
+			// }
+			// else
+			// {
+			// 	res-= 0.005*(8-y);
+			// 	//res+= -0.1*(Y-enemy_soldiers[i].getY());
+			// }
 		}
-		if(temp1>0) res+= 0.1*(temp1);
-		if(temp2>0) res+= 0.1*(temp2);
+		if(temp1>0) 
+		{
+			res+= 0.1*(temp1);
+			if(temp3>0)
+				res += 0.005*temp3;
+		}
+		else if(temp3 < 0)
+			res += 0.005*temp3;
+		if(temp2>0) 
+		{
+			res+= 0.1*(temp2);
+			if(temp4>0)
+				res += 0.005*temp4;
+		}
+		else if(temp4<0)
+			res += 0.005*temp4;
 	}
 	return res;
 }
 
-int townhall_scores[3][3] = {{0,20,0},
-							{80,50,30},
-							{100,70,50}};
+int townhall_scores[3][3] = {{0,200,0},
+							{800,500,300},
+							{1000,700,500}};
+//I kill enemy's last soldier
+int stalemate_scores[2][2] = {{800, 600},
+							 {1000, 800}};
 
-double game_state::evaluation_function()
+//enemy is true for enemy move
+double game_state::evaluation_function(bool enemy)
 {
 	double res = 0;
 					// double soldiers_wt = 0.02*((double)soldiers.size() - (double)enemy_soldiers.size());
 	double soldiers_wt = 1*((double)soldiers.size() - (double)enemy_soldiers.size());
+	double townhalls_wt;
 	//double cannon_wt = 0.003*((double)cannons.size() - (double)enemy_cannons.size());
-	double townhalls_wt = townhall_scores[((int)townhalls.size()-((X/2)+1)/2)][((int)enemy_townhalls.size()-((X/2)+1)/2)];
-	double mobility_wt = 0.005*(mob());
-	if(((int)enemy_townhalls.size()-((X/2)+1)/2)==0)
-		mobility_wt = 10;
+	// int index1 = ((int)townhalls.size()-((X/2)+1)/2);
+	// int index2 = ((int)enemy_townhalls.size()-((X/2)+1)/2);
+	double mobility_wt = 0.007*(mob(enemy));
+	if(soldiers.size()==0)
+	{
+		townhalls_wt = 1000 - stalemate_scores[((int)enemy_townhalls.size()-((X/2)+1)/2)-1][((int)townhalls.size()-((X/2)+1)/2)-1];
+	}
+	if(enemy_soldiers.size()==0)
+	{
+		townhalls_wt = stalemate_scores[((int)townhalls.size()-((X/2)+1)/2)-1][((int)enemy_townhalls.size()-((X/2)+1)/2)-1];
+		mobility_wt = 20;
+	}
+	else
+	{
+		townhalls_wt = townhall_scores[((int)townhalls.size()-((X/2)+1)/2)][((int)enemy_townhalls.size()-((X/2)+1)/2)];
+		// mobility_wt = 10;
+	}
+	
+	if(((int)enemy_townhalls.size()-((X/2)+1)/2)==0||enemy_soldiers.size()==0)
+		mobility_wt = 20;
 
 	res = soldiers_wt + townhalls_wt + mobility_wt;
 	//cerr << res << endl;
@@ -793,8 +1131,8 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 	int y_dim = this->Y;
 	if(!enemy)
 	{
-		vector<soldier> soldiers = this->soldiers;
-		vector<pair<soldier, int> > cannons = this->cannons;
+		// vector<soldier> soldiers = this->soldiers;
+		// vector<pair<soldier, int> > cannons = this->cannons;
 		int id = this->id;
 		//Soldier moves
 		for(int i=0;i<soldiers.size();++i)
@@ -980,14 +1318,14 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 				g->change_state(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0,enemy);
 				moves.push_back(make_pair(moves.size(),g));
 				// cannon bombs
-				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && board[x+3*x_par][y+3*y_par]<=0)
+				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && board[x+3*x_par][y+3*y_par]<0)
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x+3*x_par,y+3*y_par,1,enemy);
 					moves.push_back(make_pair(moves.size(),g));
 				}
-				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && board[x+4*x_par][y+4*y_par]<=0)
+				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && board[x+4*x_par][y+4*y_par]<0)
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
@@ -1002,14 +1340,14 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 				g->change_state(x+x_par,y+y_par,x_temp_2,y_temp_2 ,0,enemy);
 				moves.push_back(make_pair(moves.size(),g));
 				// cannon bombs
-				if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && board[x-3*x_par][y-3*y_par]<=0)
+				if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && board[x-3*x_par][y-3*y_par]<0)
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
 					g->change_state(x,y,x-3*x_par,y-3*y_par,1,enemy);
 					moves.push_back(make_pair(moves.size(),g));
 				}
-				if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && y_dim && board[x-4*x_par][y-4*y_par]<=0)
+				if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && y_dim && board[x-4*x_par][y-4*y_par]<0)
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
@@ -1022,14 +1360,14 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 	}
 	else
 	{
-		vector<soldier> soldiers = this->enemy_soldiers;
-		vector<pair<soldier, int> > cannons = this->enemy_cannons;
+		// vector<soldier> soldiers = this->enemy_soldiers;
+		// vector<pair<soldier, int> > cannons = this->enemy_cannons;
 		int id = this->id;
 		//Soldier moves
-		for(int i=0;i<soldiers.size();++i)
+		for(int i=0;i<enemy_soldiers.size();++i)
 		{
-			int x = soldiers.at(i).getX();
-			int y = soldiers.at(i).getY();
+			int x = enemy_soldiers.at(i).getX();
+			int y = enemy_soldiers.at(i).getY();
 			if(id==0)//enemy is white
 			{
 				//forward soldier
@@ -1070,7 +1408,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					moves.push_back(make_pair(moves.size(),g));
 				}
 				//retreat backard moves
-				if(find_soldier_grid(x-1,y,!enemy)  || find_soldier_grid(x+1,y,!enemy)  || find_soldier_grid(x-1,y+1,!enemy) 
+				if(find_soldier_grid(x-1,y,!enemy)  || find_soldier_grid(x+1,y,!enemy)  || find_soldier_grid(x-1,y+1,!enemy)
 					|| find_soldier_grid(x+1,y+1,!enemy)  || find_soldier_grid(x,y+1,!enemy) )
 				{
 					//backward
@@ -1139,7 +1477,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					moves.push_back(make_pair(moves.size(),g));
 				}
 				//retreat backard moves
-				if(find_soldier_grid(x-1,y,!enemy)  || find_soldier_grid(x+1,y,!enemy)  || find_soldier_grid(x-1,y-1,!enemy) 
+				if(find_soldier_grid(x-1,y,!enemy)  || find_soldier_grid(x+1,y,!enemy)  || find_soldier_grid(x-1,y-1,!enemy)
 					|| find_soldier_grid(x+1,y-1,!enemy)  || find_soldier_grid(x,y-1,!enemy) )
 				{
 					//backward
@@ -1159,7 +1497,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 						moves.push_back(make_pair(moves.size(),g));
 					}
 					//negative diagonal
-					if((y+2<y_dim) && (x-2>=0) && !find_soldier_grid(x-2,y+2,enemy)==-1 && !find_townhall_grid(x-2,y+2,enemy)==-1)
+					if((y+2<y_dim) && (x-2>=0) && !find_soldier_grid(x-2,y+2,enemy) && !find_townhall_grid(x-2,y+2,enemy))
 					{
 						//game_state g = *this;
 						game_state* g = new game_state(this);
@@ -1171,9 +1509,9 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 		}
 
 		///Cannon
-		for(int i=0; i<cannons.size(); i++)
+		for(int i=0; i<enemy_cannons.size(); i++)
 		{
-			int orientation = cannons.at(i).second;
+			int orientation = enemy_cannons.at(i).second;
 			int x_par,y_par;
 			if(orientation == 0)
 			{
@@ -1195,8 +1533,8 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 				x_par = -1;
 				y_par = 1;
 			}
-			int x = cannons.at(i).first.getX();
-			int y = cannons.at(i).first.getY();
+			int x = enemy_cannons.at(i).first.getX();
+			int y = enemy_cannons.at(i).first.getY();
 			// cannon moves
 			int x_temp_1 = x + 2*x_par;
 			int y_temp_1 = y + 2*y_par;
@@ -1218,7 +1556,7 @@ vector<pair<int,game_state*> > game_state::possible_states(bool enemy)
 					moves.push_back(make_pair(moves.size(),g));
 				}
 				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && !find_soldier_grid(x+4*x_par, y+4*y_par, true) &&
-				 !find_townhall(x+4*x_par, y+4*y_par, true))
+				 !find_townhall_grid(x+4*x_par, y+4*y_par, true))
 				{
 					//game_state g = *this;
 					game_state* g = new game_state(this);
@@ -1262,8 +1600,8 @@ vector<Move> game_state::possible_moves(bool enemy)
 	int y_dim = this->Y;
 	if(!enemy)
 	{
-		vector<soldier> soldiers = this->soldiers;
-		vector<pair<soldier, int> > cannons = this->cannons;
+		// vector<soldier> soldiers = this->soldiers;
+		// vector<pair<soldier, int> > cannons = this->cannons;
 		int id = this->id;
 		//Soldier moves
 		for(int i=0;i<soldiers.size();++i)
@@ -1433,15 +1771,17 @@ vector<Move> game_state::possible_moves(bool enemy)
 				moves.push_back(Move(x-x_par,y-y_par,x_temp_1,y_temp_1 ,0));
 
 				// cannon bombs
-				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && this->find_soldier(x+3*x_par, y+3*y_par, false) == -1 &&
-				 this->find_townhall(x+3*x_par, y+3*y_par, false) == -1 )
+				// if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && this->find_soldier(x+3*x_par, y+3*y_par, false) == -1 &&
+				//  this->find_townhall(x+3*x_par, y+3*y_par, false) == -1 )
+				if(x+3*x_par >= 0 && x+3*x_par < x_dim && y+3*y_par >= 0 && y+3*y_par < y_dim && board[x+3*x_par][y+3*y_par]<0)
 				{
 
 					moves.push_back(Move(x,y,x+3*x_par,y+3*y_par,1));
 
 				}
-				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && this->find_soldier(x+4*x_par, y+4*y_par, false) == -1 &&
-				 this->find_townhall(x+4*x_par, y+4*y_par, false) == -1)
+				// if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && this->find_soldier(x+4*x_par, y+4*y_par, false) == -1 &&
+				//  this->find_townhall(x+4*x_par, y+4*y_par, false) == -1)
+				if(x+4*x_par >= 0 && x+4*x_par < x_dim && y+4*y_par >= 0 && y+4*y_par < y_dim && board[x+4*x_par][y+4*y_par]<0)
 				{
 
 					moves.push_back(Move(x,y,x+4*x_par,y+4*y_par,1));
@@ -1455,15 +1795,17 @@ vector<Move> game_state::possible_moves(bool enemy)
 				moves.push_back(Move(x+x_par,y+y_par,x_temp_2,y_temp_2 ,0));
 
 				// cannon bombs
-				if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && this->find_soldier(x-3*x_par, y-3*y_par, false) == -1 &&
-				 this->find_townhall(x-3*x_par, y-3*y_par, false) == -1)
+				// if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && this->find_soldier(x-3*x_par, y-3*y_par, false) == -1 &&
+				//  this->find_townhall(x-3*x_par, y-3*y_par, false) == -1)
+				if(x-3*x_par >= 0 && x-3*x_par < x_dim && y-3*y_par >= 0 && y-3*y_par < y_dim && board[x-3*x_par][y-3*y_par]<0)
 				{
 
 					moves.push_back(Move(x,y,x-3*x_par,y-3*y_par,1));
 
 				}
-				if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && this->find_soldier(x-4*x_par, y-4*y_par, false) == -1 &&
-				 this->find_townhall(x-4*x_par, y-4*y_par, false) == -1)
+				// if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && this->find_soldier(x-4*x_par, y-4*y_par, false) == -1 &&
+				//  this->find_townhall(x-4*x_par, y-4*y_par, false) == -1)
+				if(x-4*x_par >= 0 && x-4*x_par < x_dim && y-4*y_par >= 0 && y-4*y_par < y_dim && y_dim && board[x-4*x_par][y-4*y_par]<0)
 				{
 
 					moves.push_back(Move(x,y,x-4*x_par,y-4*y_par,1));
@@ -1474,14 +1816,14 @@ vector<Move> game_state::possible_moves(bool enemy)
 	}
 	else
 	{
-		vector<soldier> soldiers = this->enemy_soldiers;
-		vector<pair<soldier, int> > cannons = this->enemy_cannons;
+		// vector<soldier> soldiers = this->enemy_soldiers;
+		// vector<pair<soldier, int> > cannons = this->enemy_cannons;
 		int id = this->id;
 		//Soldier moves
-		for(int i=0;i<soldiers.size();++i)
+		for(int i=0;i<enemy_soldiers.size();++i)
 		{
-			int x = soldiers.at(i).getX();
-			int y = soldiers.at(i).getY();
+			int x = enemy_soldiers.at(i).getX();
+			int y = enemy_soldiers.at(i).getY();
 			if(id==0)//enemy is white
 			{
 				//forward soldier
@@ -1608,9 +1950,9 @@ vector<Move> game_state::possible_moves(bool enemy)
 		}
 
 		///Cannon
-		for(int i=0; i<cannons.size(); i++)
+		for(int i=0; i<enemy_cannons.size(); i++)
 		{
-			int orientation = cannons.at(i).second;
+			int orientation = enemy_cannons.at(i).second;
 			int x_par,y_par;
 			if(orientation == 0)
 			{
@@ -1632,8 +1974,8 @@ vector<Move> game_state::possible_moves(bool enemy)
 				x_par = -1;
 				y_par = 1;
 			}
-			int x = cannons.at(i).first.getX();
-			int y = cannons.at(i).first.getY();
+			int x = enemy_cannons.at(i).first.getX();
+			int y = enemy_cannons.at(i).first.getY();
 			// cannon moves
 			int x_temp_1 = x + 2*x_par;
 			int y_temp_1 = y + 2*y_par;
