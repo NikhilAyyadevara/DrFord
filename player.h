@@ -16,6 +16,6 @@ class player
 		double min_val(node*, double, double, int, double);
 		double max_val(node*, double, double, int, double);
 		int minimax_decision(node*, double, double, int, int, double);
-		int ids_pruning(int, node*, double);
+		int ids_pruning(int, node*, double, int);
 		node* get_child(node*, int, int);
 };
