@@ -544,9 +544,16 @@ double game_state::mob(bool enemy)
 				//incresed wt in cannon is in townhalls column
 				if(y<=4)
 				{
-					res+= (1-id)*1;
-					if(x%2==0)
-						res+=(1-id)*0.1;
+					if(board[x][0]<0)
+					{
+						res+= (1-id)*2;
+						if(x%2==0)
+							res+=(1-id)*0.2;
+					}
+					else
+					{
+						res+= (1-id)*1;
+					}
 				}
 				else if(y==5)
 				{
@@ -565,9 +572,16 @@ double game_state::mob(bool enemy)
 			{
 				if(y>=Y-5)
 				{
-					res+= id*1;
-					if(x%2==1)
-						res+=(id)*0.1;
+					if(board[x][Y-1]<0)
+					{
+						res+= id*2;
+						if(x%2==1)
+							res+=(id)*0.2;
+					}
+					else
+					{
+						res+=id*1;
+					}
 				}
 				else if(y==Y-6)
 				{
@@ -667,9 +681,14 @@ double game_state::mob(bool enemy)
 
 				if(y<=4)
 				{
-					res-= (id)*1;
-					if(x%2==0)
-						res-=id*0.1;
+					if(board[x][0]>0)
+					{
+						res-= (id)*2;
+						if(x%2==0)
+							res-=id*0.2;
+					}
+					else
+						res-=id*1;
 				}
 				else if(y==5)
 				{
@@ -688,9 +707,14 @@ double game_state::mob(bool enemy)
 			{
 				if(y>=Y-5)
 				{
-					res-= (1-id)*1;
-					if(x%2==1)
-						res-=(1-id)*0.1;
+					if(board[x][Y-1]>0)
+					{
+						res-= (1-id)*2;
+						if(x%2==1)
+							res-=(1-id)*0.2;
+					}
+					else
+						res-=(1-id)*1;
 				}
 				else if(y==Y-6)
 				{
@@ -988,7 +1012,7 @@ double game_state::evaluation_function(bool enemy)
 	if(enemy_soldiers.size()==0)
 	{
 		townhalls_wt = stalemate_scores[((int)townhalls.size()-((X/2)+1)/2)-1][((int)enemy_townhalls.size()-((X/2)+1)/2)-1];
-		mobility_wt = 10;
+		mobility_wt = 20;
 	}
 	else
 	{
@@ -997,7 +1021,7 @@ double game_state::evaluation_function(bool enemy)
 	}
 	
 	if(((int)enemy_townhalls.size()-((X/2)+1)/2)==0||enemy_soldiers.size()==0)
-		mobility_wt = 10;
+		mobility_wt = 20;
 
 	res = soldiers_wt + townhalls_wt + mobility_wt;
 	//cerr << res << endl;
