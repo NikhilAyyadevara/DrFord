@@ -91,9 +91,13 @@ double player::min_val(node* state, double alpha, double beta, int depth, double
 	// vector<node*> childr = state->children;
 	int num_child = state->children.size();
 	//stalemate condition
-	if(num_child==0)
+	if(num_child==0 )
 	{
 		res = stalemate_scores1[((int)state->current_state->townhalls.size()-(( (state->current_state->X/2))+1)/2)-1][((int)state->current_state->enemy_townhalls.size()-(((state->current_state->X)/2)+1)/2)-1];
+		res += 1*(state->current_state->soldiers.size()-state->current_state->enemy_soldiers.size());
+		if(res>550) res+= 20;
+		// cerr << "wohoo1 " << res << "\n";
+		return res;
 	}
 
 	for(int i=0; i<num_child; i++)
@@ -109,17 +113,17 @@ double player::min_val(node* state, double alpha, double beta, int depth, double
 		beta = min(res, beta);
 		if(beta <= alpha)
 		{
-			state->eval_value = res + 0.005*state->eval_func;
+			state->eval_value = res;// + 0.0001*state->eval_func;
 			sort(state->children.begin(), state->children.begin()+i, ascending);
 			//if(res > 6) cerr << "min_prune " << depth << " " <<res << endl;
-			return res;
+			return state->eval_value;
 		}
 		//}
 	}
 	sort(state->children.begin(), state->children.end(), ascending);
-	state->eval_value = res + 0.005*state->eval_func;
+	state->eval_value = res;// + 0.0001*state->eval_func;
 	//if(res > 6) cerr << "min " << depth << " " <<res << endl;
-	return res;
+	return state->eval_value;
 }
 
 double player::max_val(node* state, double alpha, double beta, int depth, double timeLeft)
@@ -138,9 +142,13 @@ double player::max_val(node* state, double alpha, double beta, int depth, double
 	// vector<node*> childr = state->children;
 	int num_child = state->children.size();
 	//stalemate condition
-	if(num_child==0)
+	if(num_child==0 )
 	{
 		res = 1000 - stalemate_scores1[((int)state->current_state->enemy_townhalls.size()-(( (state->current_state->X/2))+1)/2)-1][((int)state->current_state->townhalls.size()-(((state->current_state->X)/2)+1)/2)-1];
+		res += 1*(state->current_state->soldiers.size()-state->current_state->enemy_soldiers.size()) ;
+		if(res>550) res+= 20;
+		// cerr << "wohoo2 " << res << "\n";
+		return res;
 	}
 	for(int i=0; i<num_child; i++)
 	{
@@ -155,18 +163,18 @@ double player::max_val(node* state, double alpha, double beta, int depth, double
 		alpha = max(alpha, res);
 		if(beta <= alpha)
 		{
-			state->eval_value = res + 0.005*state->eval_func;
+			state->eval_value = res;// + 0.0001*state->eval_func;
 			sort(state->children.begin(), state->children.begin()+i, descending);
 			//if(res > 6) cerr << "max_prune " << depth << " " <<res << endl; 
-			return res;
+			return state->eval_value;
 		}
 		//}
 	}
 	// if(depth==7) cerr << "max_val let's sort!" << endl;
 	sort(state->children.begin(), state->children.end(), descending);
 	// if(depth==7) cerr << "max_val bye!" << endl;
-	state->eval_value = res + 0.005*state->eval_func;
-	return res;
+	state->eval_value = res;// + 0.0001*state->eval_func;
+	return state->eval_value;
 }
 
 int player::minimax_decision(node* state, double alpha, double beta, int depth, int result,  double timeLeft)
@@ -241,6 +249,11 @@ int player::ids_pruning(int max_depth, node* root, double move_time)
 	{
 		if(move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()) < 0.01)
 			return res;
+		if((move_time==5) && move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()) < (3*move_time)/5)
+		{
+			cerr << "oopss " << count << "\n";
+			return res;
+		}
 		res = minimax_decision(root, alpha, beta, count, res, move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()));
 
 		if(move_time - ((std::chrono::duration_cast<std::chrono::duration<double> >(std::chrono::high_resolution_clock::now()-start)).count()) < 0.01)
