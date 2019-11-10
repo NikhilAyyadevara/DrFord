@@ -108,8 +108,7 @@ int main()
 				depth=10;
 			// double remaining_time = random_player->remaining_time;
 			// auto start = std::chrono::high_resolution_clock::now();
-			cerr << "depth: "<< depth << "\n";
-			cerr << "branching factor: " << b << "\n";
+			
 			node* tree = random_player->tree_build(0, false, random_player->current_state);
 			// auto end = std::chrono::high_resolution_clock::now();
 			int ran;
@@ -132,10 +131,6 @@ int main()
 			char temp;
 			// testing begin
 			// vector<pair<int, game_state*> > vc1 = random_player->current_state->possible_states(true);
-			// for(int i=0;i<moves.size();++i)
-			// {
-			// 	cerr<< 'S'<<' '<<moves.at(i).x1<<' '<<moves.at(i).y1<<' '<<moves[i].bomb<<' '<<moves.at(i).x2<<' '<<moves.at(i).y2<<"\n";
-			// }
 			// char z,h;
 			// cin>>z;
 			// int a1,b1,a2,b2;
@@ -162,9 +157,16 @@ int main()
 
 			//cerr<< std::chrono::duration_cast<chrono::milliseconds>(end-start).count() << "\n";
 			cout<< 'S'<<' '<<moves.at(ran).x1<<' '<<moves.at(ran).y1<<' '<<temp<<' '<<moves.at(ran).x2<<' '<<moves.at(ran).y2<<"\n";
+			// for(int i=0;i<moves.size();++i)
+			// {
+			// 	int ind = tree->children[i]->id;
+			// 	cerr<< ind <<" "<<tree->children[i]->eval_value<<" "<<moves.at(ind).x1<<' '<<moves.at(ind).y1<<' '<<moves[ind].bomb<<' '<<moves.at(ind).x2<<' '<<moves.at(ind).y2<<"\n";
+			// }
 			random_player->current_state->change_state(moves.at(ran).x1, moves.at(ran).y1, moves.at(ran).x2, moves.at(ran).y2, moves.at(ran).bomb, false);
 			auto end = std::chrono::high_resolution_clock::now();
 			time_left -= std::chrono::duration_cast<std::chrono::duration<double> >(end-start).count();
+			cerr << "depth: "<< depth << "\n";
+			cerr << "branching factor: " << b << "\n";
 			cerr << "eval: " << tree->eval_value <<"\n";
 			delete tree;
 		}
